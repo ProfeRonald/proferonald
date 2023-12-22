@@ -1,89 +1,420 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcomes to Firebase Hosting</title>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<link rel="icon" href="assets/images/favicon.ico">
+<title>ProfeRonald - Blog</title>
+<meta property="og:title" content="ProfeRonald - Blog" />
+  <meta property="og:type" content="article" />
+  <meta property="og:image" content="https://proferonald.com/assets/images/logo.png" />
+  <meta property="og:url" content="https://proferonald.com"/>
+  <meta property="og:site-name" content="ProfeRonald - Blog"/>
+  <meta property="og:description" content="Blog del ProfeRonald" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Rubik:400,400i,500,500i,700,700i" rel="stylesheet">
+<link href="assets/css/theme.css" rel="stylesheet">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JYVC11X4W4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-JYVC11X4W4');
+</script>
+</head>
+<body class="layout-default">
+<!-- Begin Menu Navigation
+================================================== -->
+<header class="navbar navbar-toggleable-md navbar-light bg-white fixed-top mediumnavigation">
+<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarsWow" aria-controls="navbarsWow" aria-expanded="false" aria-label="Toggle navigation">
+<span class="navbar-toggler-icon"></span>
+</button>
+<div class="container">
+	<!-- Begin Logo -->
+	<a class="navbar-brand m-0" href="https://proferonald.com">
+	<img width="10%" src="assets/images/logo.png" alt="ProfeRonald - Logo"> ProfeRonald.Com
+	</a>
+	<!-- End Logo --> 
+	<!-- Begin Menu -->
+	<div class="collapse navbar-collapse" id="navbarsWow">
+		<!-- Begin Menu -->
+		<ul class="navbar-nav ml-auto">
+			<li class="nav-item">
+			<a class="nav-link show-principal" href="#Principal">Principal</a>
+			</li>
+			<li class="nav-item dropdown">
+			<a class="nav-link dropdown-toggle " href="#" id="categorias" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Categor&iacute;as</a>
+			<div class="dropdown-menu" aria-labelledby="categorias">
+				<a class="dropdown-item categorias" href="#cat-Matem&aacute;tica">Matem&aacute;tica</a>
+				<a class="dropdown-item categorias" href="#cat-Noticias">Noticias</a>
+			</div>
+			</li>
+			<li class="nav-item edicion">
+			<a class="nav-link" id="show-noticia" href="#noticia">Nuevo</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="show-about" href="#about">Ronald Jimenez</a>
+				</li>
+			
+			<li class="nav-item">
+			<a href="#entrar" id="entrar" data-placement="bottom" tabindex="-1" data-toggle="modal" class="nav-link title-pr" title="Entrar" data-content="Click para iniciar sesi&oacute;n con su cuenta de Google" data-original-title="Entrar">	
+				<i class="fa fa-key"></i> Entrar
+			</a>
 
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/10.7.1/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/10.7.1/firebase-auth-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-database-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-firestore-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-functions-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-messaging-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-storage-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-analytics-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-remote-config-compat.js"></script>
-    <script defer src="/__/firebase/10.7.1/firebase-performance-compat.js"></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
 
-    <style media="screen">
-      body { background: #ECEFF1; color: rgba(0,0,0,0.87); font-family: Roboto, Helvetica, Arial, sans-serif; margin: 0; padding: 0; }
-      #message { background: white; max-width: 360px; margin: 100px auto 16px; padding: 32px 24px; border-radius: 3px; }
-      #message h2 { color: #ffa100; font-weight: bold; font-size: 16px; margin: 0 0 8px; }
-      #message h1 { font-size: 22px; font-weight: 300; color: rgba(0,0,0,0.6); margin: 0 0 16px;}
-      #message p { line-height: 140%; margin: 16px 0 24px; font-size: 14px; }
-      #message a { display: block; text-align: center; background: #039be5; text-transform: uppercase; text-decoration: none; color: white; padding: 16px; border-radius: 4px; }
-      #message, #message a { box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24); }
-      #load { color: rgba(0,0,0,0.4); text-align: center; font-size: 13px; }
-      @media (max-width: 600px) {
-        body, #message { margin-top: 0; background: white; box-shadow: none; }
-        body { border-top: 16px solid #ffa100; }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="message">
-      <h2>Welcome</h2>
-      <h1>Firebase Hosting Setup Complete</h1>
-      <p>You're seeing this because you've successfully setup Firebase Hosting. Now it's time to go build something extraordinary!</p>
-      <a target="_blank" href="https://firebase.google.com/docs/hosting/">Open Hosting Documentation</a>
-    </div>
-    <p id="load">Firebase SDK Loading&hellip;</p>
+			</li>
+		</ul>
+		<!-- End Menu -->
+	</div>
+</div>
+</header>
+<!-- End Menu Navigation
+================================================== -->
+<div class="site-content">
+	<!-- Home Jumbotron
+    ================================================== -->
+	<section class="intro pt-1" style="height:250px;overflow: hidden;">
+		<div id="carousel" class="carousel slide mt-0" data-interval="5000" data-ride="carousel">
+			<ol class="carousel-indicators"></ol>
+			<div class="carousel-inner p-0 mt-0"></div>
+			<a class="carousel-control-prev" href="#carousel" role="button" data-slide="prev">
+				<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+				<span class="sr-only">Previous</span>
+			</a>
+			<a class="carousel-control-next" href="#carousel" role="button" data-slide="next">
+				<span class="carousel-control-next-icon" aria-hidden="true"></span>
+				<span class="sr-only">Next</span>
+			</a>
+		</div>
+	</section>
+	<form id="formnov" style="display:none" class="mb-4"></form>
+	<div id="artsna" class="mt-4"></div>
+	<div class="modal fade" id="galeria" tabindex="-1" role="dialog" aria-labelledby="galeriaTitle" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title" id="galeriaTitle">Galer&iacute;a de im&aacute;genes</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body">
+				<div class="font-weight-bold">Optimizar imagen:<br /><div class="row"> <div class="col">Ancho:<input type="number" value="" id="ancho" class="form-control" size="3" /></div> <div class="col"> Alto: <input type="number" value="" id="alto" class="form-control" size="3" /> </div></div></div> 
 
-    <script>
-      document.addEventListener('DOMContentLoaded', function() {
-        const loadEl = document.querySelector('#load');
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
-        // // The Firebase SDK is initialized and available here!
-        //
-        // firebase.auth().onAuthStateChanged(user => { });
-        // firebase.database().ref('/path/to/ref').on('value', snapshot => { });
-        // firebase.firestore().doc('/foo/bar').get().then(() => { });
-        // firebase.functions().httpsCallable('yourFunction')().then(() => { });
-        // firebase.messaging().requestPermission().then(() => { });
-        // firebase.storage().ref('/path/to/ref').getDownloadURL().then(() => { });
-        // firebase.analytics(); // call to activate
-        // firebase.analytics().logEvent('tutorial_completed');
-        // firebase.performance(); // call to activate
-        //
-        // // 🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥🔥
+				 <div class="subirfoto title-pr" data-content="Click para subir una imagen">
+	  <div class="seleccionarfoto">
+	  <input type="file" id="foto_cargar" name="foto_cargar" class="form-control-file" accept=".jpg, .jpeg, .png" />
+	  
+	  <label for="foto_cargar"></label>
+	  </div>
+	  <div class="verfoto">
+	  
+	  <div id="foto_mini" sqlq="0" idq="1" style="background-image: url(subir-img.png);"></div>
+	  <canvas id="foto_canvas" style="display:none"></canvas>
+	  <canvas id="foto_canvas_mini" style="display:none"></canvas>
+	  
+	  </div>
+	  </div>
+	  
+											   <div id="barrafoto"></div>
+											   <div id="subiendofoto"></div>
+		  
+				  <div class="card-body text-justify row" id="fotos-galeria"></div>
+										
+			</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+			</div>
+		  </div>
+		</div>
+	  </div>
+	<div class="modal fade" id="dato" pagina-principal="1" tabindex="-1" role="dialog" aria-labelledby="datoLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <h5 class="modal-title" id="datoLabel">Editando informaci&oacute;n</h5>
+			  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			  </button>
+			</div>
+			<div class="modal-body pl-4">
+			  <div class="form-group">
+				  <label for="data-info">Contenido:</label>
+				  <textarea class="form-control" style="height:100%;" id="data-info" rows="10"></textarea>
+			  </div>
+				</div>
+			<div class="modal-footer">
+			  <button type="button" class="btn btn-primary" data-dismiss="modal">Cerrar</button>
+			</div>
+		  </div>
+		</div>
+	  </div>
 
-        try {
-          let app = firebase.app();
-          let features = [
-            'auth', 
-            'database', 
-            'firestore',
-            'functions',
-            'messaging', 
-            'storage', 
-            'analytics', 
-            'remoteConfig',
-            'performance',
-          ].filter(feature => typeof app[feature] === 'function');
-          loadEl.textContent = `Firebase SDK loaded with ${features.join(', ')}`;
-        } catch (e) {
-          console.error(e);
-          loadEl.textContent = 'Error loading the Firebase SDK, check the console.';
-        }
-      });
-    </script>
-  </body>
+<div id="modal-html" data-toggle="modal" data-target="#terminos"></div>
+
+	<!-- Container
+    ================================================== -->
+	<div class="container">		
+		<div class="main-content">
+			<section cache="1" id="about">
+
+			</section>
+			<!-- Featured
+            ================================================== -->
+			<section class="featured-posts" style="display:none">
+			<div class="section-title">
+				<h2><span>Novedades</span></h2>
+			</div>
+			<div class="row listfeaturedtag" id="novedades">	
+			</div>
+			</section>
+			<!-- Posts Index
+        ================================================== -->
+			<section class="recent-posts row">
+				<div class="col-sm-8 muro-izq">
+					<div class="section-title publicaciones" style="display:none">
+						<h2><span>Publicaciones</span></h2>
+					</div>
+					<div class="row listrecent publicaciones" posts-publicados="0" id="publicaciones" style="display:none">
+					
+					</div>
+
+					<div id="publicacion" style="display:none">
+					
+					</div>
+						  
+					  <section class="rounded py-4 comentarios" style="display:none;background-color: #eee;">		  
+								<div class="card mx-4">
+								  <div class="card-body">
+									<div class="mb-3">
+										<div class="row">
+										<div class="col">
+											<div class="d-flex flex-start mb-2" id="respondiendo"></div>
+
+										</div>
+									</div>
+										</div>
+									<div class="row mb-3" id="comentando" style="display:none">
+									<div class="col-2 text-right py-5 px-1 border-right border-primary">
+										<img class="rounded-circle"
+										  src="assets/images/usuario.png" alt="Usuario" width="45"
+										  height="45" />
+										</div>
+										<div class="col-10 px-1">
+											<div>
+												<div class="mc-caja-mensaje  my-1">
+											<label class="form-label font-weight-bold" for="mc-mensaje-chat">Comentario:</label>
+											<div class="row p-0 border mx-1">
+												<div class="col-6"><span class="text-primary" id="crts"></span></div>
+											<div class="col-6">
+												<div class="chatformato ml-4" style="width:79%">
+													<div id="formatobtn" class="p-0 m-0 d-inline-block">
+										  <a href="javascript:void(0);" data-role="bold" class="text-white mx-2" rel="tooltip" title="Negrita"><b>N</b></a>
+										  <a href="javascript:void(0);" data-role="italic" class="text-white mx-2" rel="tooltip" title="Cursiva"><i>C</i></a>
+										  <a href="javascript:void(0);" data-role="underline" class="text-white mx-2" rel="tooltip" title="Subrayar"><u>S</u></a>
+										  <a href="javascript:void(0);" data-role="strikeThrough" class="text-white mx-2" rel="tooltip" title="Tachar"><strike>T</strike></a>
+										  <a href="javascript:void(0);" data-role="undo" class="text-white fa fa-undo mx-2" aria-hidden="true" rel="tooltip" title="Deshacer"></a>
+										  <a href="javascript:void(0);" data-role="redo" class="text-white fa fa-repeat ml-2 mr-0" aria-hidden="true" rel="tooltip" title="Rehacer"></a>
+										</div>
+										
+										</div>
+											</div>
+										</div>
+										  <textarea style="overflow:auto;max-height:350px;" class="form-control mb-0 border-0 d-none" rows="4" maxlength="600"></textarea>
+										    
+										
+
+										
+										<input id="keyenter" type="hidden" value="<br>" />
+										<div class="input-group pb-2">
+					      			
+											<div class="input-group-append">
+												<span class="input-group-text mc-border-chat-left" id="mc-emoji-btn"><i class="fa fa-smile-o"></i></span>
+											</div>
+												  <fieldset id="mc-mensaje-chat" placeholder="Escriba un mensaje..." class="my-0 form-control border" contenteditable="true"></fieldset>
+											<div class="input-group-append align-text-bottom">
+												<span class="input-group-text border mc-border-chat-right mc-mensaje-enviar" id="mc-mensaje-enviar"><i class="fa fa-paper-plane" style="visibility: hidden;cursor: pointer;"></i></span>
+											</div>
+											  </div>
+											  <div class="mt-0 text-right border border-top-0">
+												<div class="m-0 py-2 pr-1 font-weight-bold rounded text-white" idp="-NCTb9s4nnhF0cY0sArI" id="comentar">
+													Publicar como Usuario
+												  </div>
+										  </div>
+										
+									
+									<div id="mc-chat-emoticones" class="p-1 rounded mx-1 bg-light border" style="display:none">
+					      			<div id="mc-cerrar-emojis" class="float-right"><i class="fa fa-times"></i></div>
+					      			<ul class="nav nav-tabs" role="tablist">
+					      				<li class="nav-item m-0 p-1">
+					      					<a class="m-0 p-0 nav-link active" id="cara-tab" data-toggle="tab" href="#cara" role="tab" aria-controls="cara" aria-selected="true">&#128515;</a>
+					      				</li>
+					      				<li class="nav-item m-0 p-1">
+					      					<a class="m-0 p-1 nav-link" id="animales-tab" data-toggle="tab" href="#animales" role="tab" aria-controls="animales" aria-selected="false">&#128018;</a>
+					      				</li>
+					      				<li class="nav-item m-0 p-1">
+					      					<a class="m-0 p-1 nav-link" id="comida-tab" data-toggle="tab" href="#comida" role="tab" aria-controls="comida" aria-selected="false">&#127860;</a>
+					      				</li>
+					      				<li class="nav-item m-0 p-1">
+					      					<a class="m-0 p-1 nav-link" id="deporte-tab" data-toggle="tab" href="#deporte" role="tab" aria-controls="deporte" aria-selected="false">&#9918;</a>
+					      				</li>
+					      				<li class="nav-item m-0 p-1">
+					      					<a class="m-0 p-1 nav-link" id="transporte-tab" data-toggle="tab" href="#transporte" role="tab" aria-controls="transporte" aria-selected="false">&#128662;</a>
+					      				</li>
+					      				<li class="nav-item m-0 p-1">
+					      					<a class="m-0 p-1 nav-link" id="varios-tab" data-toggle="tab" href="#varios" role="tab" aria-controls="varios" aria-selected="false">&#128213;</a>
+					      				</li>
+					      			</ul>
+					      			<div class="tab-content">
+					      				<div class="tab-pane fade show active" id="cara" role="tabpanel" aria-labelledby="cara-tab">
+  												<input class="mc-emojic-click rounded" type="button" value="&#128513;" /><input class="mc-emojic-click rounded" type="button" value="&#128514;" /><input class="mc-emojic-click rounded" type="button" value="&#128515;" /><input class="mc-emojic-click rounded" type="button" value="&#128516;" /><input class="mc-emojic-click rounded" type="button" value="&#128517;" /><input class="mc-emojic-click rounded" type="button" value="&#128518;" /><input class="mc-emojic-click rounded" type="button" value="&#128521;" /><input class="mc-emojic-click rounded" type="button" value="&#128522;" /><input class="mc-emojic-click rounded" type="button" value="&#128523;" /><input class="mc-emojic-click rounded" type="button" value="&#128524;" /><input class="mc-emojic-click rounded" type="button" value="&#128525;" /><input class="mc-emojic-click rounded" type="button" value="&#128527;" /><input class="mc-emojic-click rounded" type="button" value="&#128530;" /><input class="mc-emojic-click rounded" type="button" value="&#128531;" /><input class="mc-emojic-click rounded" type="button" value="&#128532;" /><input class="mc-emojic-click rounded" type="button" value="&#128534;" /><input class="mc-emojic-click rounded" type="button" value="&#128536;" /><input class="mc-emojic-click rounded" type="button" value="&#128538;" /><input class="mc-emojic-click rounded" type="button" value="&#128540;" /><input class="mc-emojic-click rounded" type="button" value="&#128541;" /><input class="mc-emojic-click rounded" type="button" value="&#128542;" /><input class="mc-emojic-click rounded" type="button" value="&#128544;" /><input class="mc-emojic-click rounded" type="button" value="&#128545;" /><input class="mc-emojic-click rounded" type="button" value="&#128546;" /><input class="mc-emojic-click rounded" type="button" value="&#128547;" /><input class="mc-emojic-click rounded" type="button" value="&#128548;" /><input class="mc-emojic-click rounded" type="button" value="&#128549;" /><input class="mc-emojic-click rounded" type="button" value="&#128552;" /><input class="mc-emojic-click rounded" type="button" value="&#128553;" /><input class="mc-emojic-click rounded" type="button" value="&#128554;" /><input class="mc-emojic-click rounded" type="button" value="&#128555;" /><input class="mc-emojic-click rounded" type="button" value="&#128557;" /><input class="mc-emojic-click rounded" type="button" value="&#128560;" /><input class="mc-emojic-click rounded" type="button" value="&#128561;" /><input class="mc-emojic-click rounded" type="button" value="&#128562;" /><input class="mc-emojic-click rounded" type="button" value="&#128563;" /><input class="mc-emojic-click rounded" type="button" value="&#128565;" /><input class="mc-emojic-click rounded" type="button" value="&#128567;" />
+  											</div>
+  											<div class="tab-pane fade" id="animales" role="tabpanel" aria-labelledby="animales-tab">
+  												<input class="mc-emojic-click rounded" type="button" value="&#128012;" /><input class="mc-emojic-click rounded" type="button" value="&#128013;" /><input class="mc-emojic-click rounded" type="button" value="&#128014;" /><input class="mc-emojic-click rounded" type="button" value="&#128017;" /><input class="mc-emojic-click rounded" type="button" value="&#128018;" /><input class="mc-emojic-click rounded" type="button" value="&#128020;" /><input class="mc-emojic-click rounded" type="button" value="&#128023;" /><input class="mc-emojic-click rounded" type="button" value="&#128024;" /><input class="mc-emojic-click rounded" type="button" value="&#128025;" /><input class="mc-emojic-click rounded" type="button" value="&#128026;" /><input class="mc-emojic-click rounded" type="button" value="&#128027;" /><input class="mc-emojic-click rounded" type="button" value="&#128028;" /><input class="mc-emojic-click rounded" type="button" value="&#128029;" /><input class="mc-emojic-click rounded" type="button" value="&#128030;" /><input class="mc-emojic-click rounded" type="button" value="&#128031;" /><input class="mc-emojic-click rounded" type="button" value="&#128032;" /><input class="mc-emojic-click rounded" type="button" value="&#128033;" /><input class="mc-emojic-click rounded" type="button" value="&#128034;" /><input class="mc-emojic-click rounded" type="button" value="&#128035;" /><input class="mc-emojic-click rounded" type="button" value="&#128036;" /><input class="mc-emojic-click rounded" type="button" value="&#128037;" /><input class="mc-emojic-click rounded" type="button" value="&#128038;" /><input class="mc-emojic-click rounded" type="button" value="&#128039;" /><input class="mc-emojic-click rounded" type="button" value="&#128040;" /><input class="mc-emojic-click rounded" type="button" value="&#128041;" /><input class="mc-emojic-click rounded" type="button" value="&#128043;" /><input class="mc-emojic-click rounded" type="button" value="&#128044;" /><input class="mc-emojic-click rounded" type="button" value="&#128045;" /><input class="mc-emojic-click rounded" type="button" value="&#128046;" /><input class="mc-emojic-click rounded" type="button" value="&#128047;" /><input class="mc-emojic-click rounded" type="button" value="&#128048;" /><input class="mc-emojic-click rounded" type="button" value="&#128049;" /><input class="mc-emojic-click rounded" type="button" value="&#128050;" /><input class="mc-emojic-click rounded" type="button" value="&#128051;" /><input class="mc-emojic-click rounded" type="button" value="&#128052;" /><input class="mc-emojic-click rounded" type="button" value="&#128053;" /><input class="mc-emojic-click rounded" type="button" value="&#128054;" /><input class="mc-emojic-click rounded" type="button" value="&#128055;" /><input class="mc-emojic-click rounded" type="button" value="&#128056;" /><input class="mc-emojic-click rounded" type="button" value="&#128057;" /><input class="mc-emojic-click rounded" type="button" value="&#128058;" /><input class="mc-emojic-click rounded" type="button" value="&#128059;" /><input class="mc-emojic-click rounded" type="button" value="&#128060;" />
+  											</div>
+  											<div class="tab-pane fade" id="comida" role="tabpanel" aria-labelledby="comida-tab">
+  												<input class="mc-emojic-click rounded" type="button" value="&#127813;" /><input class="mc-emojic-click rounded" type="button" value="&#127814;" /><input class="mc-emojic-click rounded" type="button" value="&#127815;" /><input class="mc-emojic-click rounded" type="button" value="&#127816;" /><input class="mc-emojic-click rounded" type="button" value="&#127817;" /><input class="mc-emojic-click rounded" type="button" value="&#127818;" /><input class="mc-emojic-click rounded" type="button" value="&#127820;" /><input class="mc-emojic-click rounded" type="button" value="&#127821;" /><input class="mc-emojic-click rounded" type="button" value="&#127822;" /><input class="mc-emojic-click rounded" type="button" value="&#127823;" /><input class="mc-emojic-click rounded" type="button" value="&#127825;" /><input class="mc-emojic-click rounded" type="button" value="&#127826;" /><input class="mc-emojic-click rounded" type="button" value="&#127827;" /><input class="mc-emojic-click rounded" type="button" value="&#127828;" /><input class="mc-emojic-click rounded" type="button" value="&#127829;" /><input class="mc-emojic-click rounded" type="button" value="&#127830;" /><input class="mc-emojic-click rounded" type="button" value="&#127831;" /><input class="mc-emojic-click rounded" type="button" value="&#127832;" /><input class="mc-emojic-click rounded" type="button" value="&#127836;" /><input class="mc-emojic-click rounded" type="button" value="&#127837;" /><input class="mc-emojic-click rounded" type="button" value="&#127838;" /><input class="mc-emojic-click rounded" type="button" value="&#127839;" /><input class="mc-emojic-click rounded" type="button" value="&#127840;" /><input class="mc-emojic-click rounded" type="button" value="&#127841;" /><input class="mc-emojic-click rounded" type="button" value="&#127842;" /><input class="mc-emojic-click rounded" type="button" value="&#127843;" /><input class="mc-emojic-click rounded" type="button" value="&#127844;" /><input class="mc-emojic-click rounded" type="button" value="&#127846;" /><input class="mc-emojic-click rounded" type="button" value="&#127848;" /><input class="mc-emojic-click rounded" type="button" value="&#127849;" /><input class="mc-emojic-click rounded" type="button" value="&#127850;" /><input class="mc-emojic-click rounded" type="button" value="&#127851;" /><input class="mc-emojic-click rounded" type="button" value="&#127852;" /><input class="mc-emojic-click rounded" type="button" value="&#127853;" /><input class="mc-emojic-click rounded" type="button" value="&#127856;" /><input class="mc-emojic-click rounded" type="button" value="&#127858;" /><input class="mc-emojic-click rounded" type="button" value="&#127859;" /><input class="mc-emojic-click rounded" type="button" value="&#127860;" /><input class="mc-emojic-click rounded" type="button" value="&#127863;" /><input class="mc-emojic-click rounded" type="button" value="&#127864;" /><input class="mc-emojic-click rounded" type="button" value="&#127867;" />
+  											</div>
+  											<div class="tab-pane fade" id="deporte" role="tabpanel" aria-labelledby="deporte-tab">
+  												<input class="mc-emojic-click rounded" type="button" value="&#127921;" /><input class="mc-emojic-click rounded" type="button" value="&#127923;" /><input class="mc-emojic-click rounded" type="button" value="&#127934;" /><input class="mc-emojic-click rounded" type="button" value="&#127935;" /><input class="mc-emojic-click rounded" type="button" value="&#127936;" /><input class="mc-emojic-click rounded" type="button" value="&#127937;" /><input class="mc-emojic-click rounded" type="button" value="&#127938;" /><input class="mc-emojic-click rounded" type="button" value="&#127939;" /><input class="mc-emojic-click rounded" type="button" value="&#127940;" /><input class="mc-emojic-click rounded" type="button" value="&#127942;" /><input class="mc-emojic-click rounded" type="button" value="&#127944;" /><input class="mc-emojic-click rounded" type="button" value="&#127946;" /><input class="mc-emojic-click rounded" type="button" value="&#128675;" /><input class="mc-emojic-click rounded" type="button" value="&#128692;" /><input class="mc-emojic-click rounded" type="button" value="&#128693;" /><input class="mc-emojic-click rounded" type="button" value="&#9917;" /><input class="mc-emojic-click rounded" type="button" value="&#9918;" /><input class="mc-emojic-click rounded" type="button" value="&#9978;" /><input class="mc-emojic-click rounded" type="button" value="&#127907;" /><input class="mc-emojic-click rounded" type="button" value="&#127919;" /><input class="mc-emojic-click rounded" type="button" value="&#9971;" />
+  											</div>
+  											<div class="tab-pane fade" id="transporte" role="tabpanel" aria-labelledby="transporte-tab">
+  												<input class="mc-emojic-click rounded" type="button" value="&#128641;" /><input class="mc-emojic-click rounded" type="button" value="&#128642;" /><input class="mc-emojic-click rounded" type="button" value="&#128646;" /><input class="mc-emojic-click rounded" type="button" value="&#128648;" /><input class="mc-emojic-click rounded" type="button" value="&#128650;" /><input class="mc-emojic-click rounded" type="button" value="&#128653;" /><input class="mc-emojic-click rounded" type="button" value="&#128654;" /><input class="mc-emojic-click rounded" type="button" value="&#128656;" /><input class="mc-emojic-click rounded" type="button" value="&#128660;" /><input class="mc-emojic-click rounded" type="button" value="&#128662;" /><input class="mc-emojic-click rounded" type="button" value="&#128664;" /><input class="mc-emojic-click rounded" type="button" value="&#128667;" /><input class="mc-emojic-click rounded" type="button" value="&#128668;" /><input class="mc-emojic-click rounded" type="button" value="&#128669;" /><input class="mc-emojic-click rounded" type="button" value="&#128670;" /><input class="mc-emojic-click rounded" type="button" value="&#128671;" /><input class="mc-emojic-click rounded" type="button" value="&#128672;" /><input class="mc-emojic-click rounded" type="button" value="&#128673;" /><input class="mc-emojic-click rounded" type="button" value="&#128640;" /><input class="mc-emojic-click rounded" type="button" value="&#128643;" /><input class="mc-emojic-click rounded" type="button" value="&#128644;" /><input class="mc-emojic-click rounded" type="button" value="&#128645;" /><input class="mc-emojic-click rounded" type="button" value="&#128647;" /><input class="mc-emojic-click rounded" type="button" value="&#128649;" /><input class="mc-emojic-click rounded" type="button" value="&#128652;" /><input class="mc-emojic-click rounded" type="button" value="&#128657;" /><input class="mc-emojic-click rounded" type="button" value="&#128658;" /><input class="mc-emojic-click rounded" type="button" value="&#128659;" /><input class="mc-emojic-click rounded" type="button" value="&#128661;" /><input class="mc-emojic-click rounded" type="button" value="&#128663;" /><input class="mc-emojic-click rounded" type="button" value="&#128665;" /><input class="mc-emojic-click rounded" type="button" value="&#128666;" /><input class="mc-emojic-click rounded" type="button" value="&#128674;" /><input class="mc-emojic-click rounded" type="button" value="&#128676;" /><input class="mc-emojic-click rounded" type="button" value="&#128690;" />
+  											</div>
+  											<div class="tab-pane fade" id="varios" role="tabpanel" aria-labelledby="varios-tab">
+  												<input class="mc-emojic-click rounded" type="button" value="&#127890;" /><input class="mc-emojic-click rounded" type="button" value="&#127880;" /><input class="mc-emojic-click rounded" type="button" value="&#127881;" /><input class="mc-emojic-click rounded" type="button" value="&#127887;" /><input class="mc-emojic-click rounded" type="button" value="&#127891;" /><input class="mc-emojic-click rounded" type="button" value="&#127905;" /><input class="mc-emojic-click rounded" type="button" value="&#127906;" /><input class="mc-emojic-click rounded" type="button" value="&#127908;" /><input class="mc-emojic-click rounded" type="button" value="&#127909;" /><input class="mc-emojic-click rounded" type="button" value="&#127911;" /><input class="mc-emojic-click rounded" type="button" value="&#127912;" /><input class="mc-emojic-click rounded" type="button" value="&#127915;" /><input class="mc-emojic-click rounded" type="button" value="&#127916;" /><input class="mc-emojic-click rounded" type="button" value="&#127918;" /><input class="mc-emojic-click rounded" type="button" value="&#127919;" /><input class="mc-emojic-click rounded" type="button" value="&#127926;" /><input class="mc-emojic-click rounded" type="button" value="&#127927;" /><input class="mc-emojic-click rounded" type="button" value="&#127928;" /><input class="mc-emojic-click rounded" type="button" value="&#127929;" /><input class="mc-emojic-click rounded" type="button" value="&#127930;" /><input class="mc-emojic-click rounded" type="button" value="&#127931;" /><input class="mc-emojic-click rounded" type="button" value="&#127932;" /><input class="mc-emojic-click rounded" type="button" value="&#127968;" /><input class="mc-emojic-click rounded" type="button" value="&#127973;" /><input class="mc-emojic-click rounded" type="button" value="&#127978;" /><input class="mc-emojic-click rounded" type="button" value="&#128147;" /><input class="mc-emojic-click rounded" type="button" value="&#128148;" /><input class="mc-emojic-click rounded" type="button" value="&#128149;" /><input class="mc-emojic-click rounded" type="button" value="&#128150;" /><input class="mc-emojic-click rounded" type="button" value="&#128151;" /><input class="mc-emojic-click rounded" type="button" value="&#128152;" /><input class="mc-emojic-click rounded" type="button" value="&#128187;" /><input class="mc-emojic-click rounded" type="button" value="&#128186;" /><input class="mc-emojic-click rounded" type="button" value="&#128197;" /><input class="mc-emojic-click rounded" type="button" value="&#128213;" /><input class="mc-emojic-click rounded" type="button" value="&#128247;" />
+  											</div>
+										</div>
+									</div>
+
+								</div>
+							</div>
+						</div>
+					</div>
+									<hr />
+									
+					  
+									<div class="row">
+									  <div class="col" id="comentarios" style="display:none">
+
+
+									  </div>
+									</div>
+								 
+							 
+						  </section>
+						  
+						  
+						  
+						 
+						  
+						
+										
+				</div>
+			<div class="col-sm-4 muro-der">
+				<div class="sidebar">
+					<div class="sidebar-section">
+						<h5><span>Vers&iacute;culo del d&iacute;a</span></h5>
+						<div id="dailyVersesWrapper"></div>
+						<div id="versiculo-dia" class="text-right font-weight-bold"></div>
+					</div>
+					<div class="sidebar-section">
+						<h5><span>Publicidad</span></h5>
+						<a target="_blank" href="https://farmaciadarselys.com" title="Servicio farmac&eacute;utico para Los Cocos y zonas aleda&ntilde;as"><img src="https://farmaciadarselys.com/noticia.jpg" alt="Farmacia Darselys"></a>
+					</div>
+				</div>
+			</div>
+		
+		</section>
+		
+		</div>
+		</div>
+	
+	<!-- /.container -->
+	<!-- Before Footer
+    ================================================== -->
+	<div class="clearfix"></div>
+	
+	<!-- Begin Footer
+    ================================================== -->
+	<footer class="footer">
+	<div class="container">
+		<div class="row">
+			<div class="col-sm-3">
+				<div class="footer-widget">
+					<a href="#contacto">
+					<img width="50%" src="assets/images/logo.png" alt="ProfeRonald - Logo">
+					</a>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="footer-widget">
+					<h5 class="title">Recursos</h5>
+					<ul>
+						<li><a target="_blank" href="https://escuelard.com">escuelaRD</a></li>
+						<li><a target="_blank" href="https://math--chat.web.app">MathChats</a></li>
+						<li><a target="_blank" href="https://farmaciadarselys.com">Farmacia Darselys</a></li>
+						<li><a target="_blank" href="https://instagram.com/politecnicoelsabrito">Polit&eacute;nico Maestra Elsa Brito</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="footer-widget">
+					<h5 class="title">T&eacute;minos de uso</h5>
+					<ul>
+						<li><a href="#terminos" class="terminos">T&eacute;rminos de uso</a></li>
+						<li><a href="#politica" class="terminos">Pol&iacute;tica de privacidad</a></li>
+						<li><a href="#contacto">Contacto</a></li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-sm-3">
+				<div class="footer-widget  footersocial">
+					<h5 class="title">Redes y enlaces</h5>
+						<a href="https://www.linkedin.com/in/proferonald/"><i class="fa fa-linkedin"></i></a>
+                        <a href="https://twitter.com/ProfeRonald"><i class="fa fa-twitter"></i></a>
+                        <a href="https://www.instagram.com/proferonald/"><i class="fa fa-instagram"></i></a>
+                        <a href="https://www.facebook.com/ProfeRonaldCom/"><i class="fa fa-facebook-f"></i></a>
+                        <a href="https://proferonald.tumblr.com/"><i class="fa fa-tumblr"></i></a>
+                        <a href="https://www.pinterest.com/proferonald/"><i class="fa fa-pinterest"></i></a>
+                        <a href="https://vimeo.com/proferonald"><i class="fa fa-vimeo"></i></a>
+                        <a href="https://soundcloud.com/proferonald"><i class="fa fa-soundcloud"></i></a>
+						<a href="https://github.com/proferonald"><i class="fa fa-github"></i></a>
+				</div>
+			</div>
+		</div>
+		<div class="copyright">
+			<p class="pull-right" id="copy">
+				 Copyright © 2023 SaaS Dominicana
+			</p>
+			<div class="clearfix">
+			</div>
+		</div>
+	</div>
+	</footer>
+	<!-- End Footer
+    ================================================== -->
+</div>
+
+<!-- JavaScript
+================================================== -->
+<script src="assets/js/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+<script src="assets/js/ie10-viewport-bug-workaround.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+<script src="assets/js/masonry.pkgd.min.js"></script>
+<script src="assets/js/theme.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script async defer src="https://dailyverses.net/get/verse.js?language=rvr60"></script>
+<script src="assets/js/pica.js"></script>
+<script defer src="//unpkg.com/mathlive"></script>
+<script defer src="assets/js/index.js"></script>
+
+</body>
 </html>
