@@ -33,15 +33,6 @@
         appId: "1:647906089395:web:72421f937bbf9f6a3693c6",
         measurementId: "G-JYVC11X4W4",
       });
-
-      E.a.auth().onAuthStateChanged(function (user) {
-        if (user) {
-
-          const rt = document.getElementById('root');
-
-          rt.innerHTML = '';
-
-
       E.a.database();
       var h = E.a.storage(),
         v = (new E.a.auth.GoogleAuthProvider(), t(3)),
@@ -245,11 +236,6 @@
                 "span",
                 { className: "header-icon", "data-title": t },
                 r.a.createElement(v.a, { icon: b.e, color: "gold" })
-              ),
-              r.a.createElement(
-                "span",
-                { className: "salir-login", "id": "salir"},
-                r.a.createElement(v.a, { icon: b.l, color: "gold" })
               )
             ),
             r.a.createElement(
@@ -422,8 +408,7 @@
             { className: " file-explorer" },
             r.a.createElement(k, {
               showFileExplorer: a,
-              title: "Archivos del ProfeRonald",
-              id: "salir"
+              title: "Firebase File Manager by Doruk Karaboncuk",
             }),
             r.a.createElement(j, { history: t }),
             r.a.createElement(x, null),
@@ -856,7 +841,7 @@
                 r.a.createElement(
                   "span",
                   { className: "date-time-container--date" },
-                  w()().format("DD/MM/YYYY")
+                  w()().format("DD.MM.YYYY")
                 )
               ),
               r.a.createElement(
@@ -924,58 +909,6 @@
           navigator.serviceWorker.ready.then(function (e) {
             e.unregister();
           });
-
-
-          const sl = document.getElementById('salir');
-
-          sl.addEventListener("click", function() {
-            
-            E.a.auth().signOut().then(() => {});
-        
-          });
-
-
-        }else{
-
-          function IniciarSesion() {
-            
-            var provider = new E.a.auth.GoogleAuthProvider();
-            
-            E.a.auth()
-              .setPersistence(E.a.auth.Auth.Persistence.LOCAL)
-              .then(function () {
-                return E.a.auth()
-                  .signInWithRedirect(provider)
-                  .then(() => {})
-                  .catch((err) => {
-                    $("#login-app").html(
-                      '<h1>&iexcl;Ha ocurrido un error!, Intentando de nuevo...</h1>'
-                    );
-                    setTimeout(function () {
-                      const la = document.getElementById('login-app');
-                      la.innerHTML = '<div><img src="google.jpg" /></div><div class="login-app"><h1>Entrar con Gooogle</h1></div>';
-                      IniciarSesion();
-                    }, 2000);
-                  });
-              });
-          }
-
-          const rt = document.getElementById('root');
-
-          rt.innerHTML = '<div id="login-app"><div><img src="google.jpg" /></div><div class="login-app"><h1>Entrar con Gooogle</h1></div></div>';
-
-          const la = document.getElementById('login-app');
-
-          la.addEventListener("click", function() {
-            
-                IniciarSesion();
-            
-          });
-
-
-        }
-
-      })
     },
   },
   [[33, 1, 2]],

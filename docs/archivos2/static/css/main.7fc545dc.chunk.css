@@ -465,35 +465,4 @@ button:disabled {
   text-align: center;
   width: 18px;
 }
-
-#login-app, .login-app {
-  margin: 0;
-  padding: 0;
-  z-index: 9999;
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  right: 0rem;
-  bottom: 0rem;
-  background-color: rgba(180, 79, 79, 0.5);
-  display: flex;
-  text-align: center;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-}
-
-#login-app h1{
-  color:rgba(243, 218, 218, 0.5);
-  font-size: 10rem;
-  font-weight: bold;
-  border-collapse: inherit;
-}
-
-#login-app img{
-  border-radius: 10%;
-}
-
-
-
 /*# sourceMappingURL=main.7fc545dc.chunk.css.map */
