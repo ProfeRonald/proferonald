@@ -48,6 +48,8 @@ Los enlaces históricos `?post=...&pid=...` siguen funcionando. Los nuevos enlac
 
 ## Publicación y operación
 
+La versión v2 está activada en https://proferonald.com. Consulta [ACTIVACION.md](ACTIVACION.md) para el resultado, el respaldo de la transición y el acceso administrativo.
+
 **No publiques esta versión antes de migrar y verificar los datos y el administrador.** El workflow de producción ejecuta un control previo que impide hacerlo accidentalmente. Consulta [REGLAS_FIREBASE.md](REGLAS_FIREBASE.md) para los cambios exactos y su orden de activación, y [OPERACION.md](OPERACION.md) para respaldo, restauración, migración, credenciales, despliegue, reversión y alertas.
 
 Los archivos históricos bajo `docs/assets/js` y `docs/archivos/static` se conservan como referencia y no forman parte del paquete publicable. El repositorio original del gestor, <https://github.com/ProfeRonald/archivos-proferonald>, también contiene solo compilados. Las eliminaciones preexistentes en `docs/archivos2` no son parte de esta implementación.

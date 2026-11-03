@@ -2,13 +2,19 @@
 
 ## Estado inicial
 
-Esta implementación no modifica producción. Se respaldaron las reglas actuales de Storage en `.local/remote-rules/storage.json`: restringen las operaciones a un UID concreto. Las reglas actuales de Realtime Database fueron suministradas por el propietario y se conservan en `tests/fixtures/database.legacy.rules.json`, con una copia local en `.local/remote-rules/database.user-provided.json`. No se han contrastado mediante la API, que respondió HTTP 401 con la sesión disponible.
+La revisión inicial no modificó producción. La activación posterior se realizó el 3 de noviembre de 2026 y se documenta en [ACTIVACION.md](ACTIVACION.md). El respaldo completo de esa transición está en `.local/backups/activation-v2-20261103`, incluidas las reglas efectivamente desplegadas y la versión anterior de Hosting.
+
+Como referencia histórica, se respaldaron las reglas originales de Storage en `.local/remote-rules/storage.json`: restringían las operaciones a un UID concreto. Las reglas originales de Realtime Database fueron suministradas por el propietario y se conservan en `tests/fixtures/database.legacy.rules.json`, con una copia local en `.local/remote-rules/database.user-provided.json`. La lectura inicial por API respondió HTTP 401; se resolvió utilizando el alcance de identificación de la sesión local autorizada.
 
 Las reglas suministradas confirman tres riesgos: lectura pública de todos los artículos, incluidos borradores; lectura pública de cada perfil completo si se conoce su UID, incluido su correo si está almacenado; y creación o sobrescritura de comentarios sin iniciar sesión porque `newData.exists()` no comprueba autenticación ni autoría. El borrado completo de un comentario sí queda reservado al UID administrador, pero sus campos y respuestas pueden modificarse mientras el comentario padre siga cumpliendo la validación. No hay evidencia aquí de que estos permisos se hayan explotado.
 
 Antes de activar, confirmar que la referencia suministrada sigue vigente y conservarla junto al respaldo de datos. `node scripts/inspect-remote.cjs` es una herramienta de lectura para la instalación local de Firebase CLI en Windows; no imprime credenciales ni datos de usuarios. La referencia de reglas ya está disponible, pero sigue siendo necesario acceso autorizado para respaldar datos, asignar permisos y migrar. No relajar permisos para facilitar la inspección.
 
 Los comandos administrativos usan Application Default Credentials. Configura `GOOGLE_APPLICATION_CREDENTIALS` con la ruta de una cuenta de servicio fuera del repositorio, o utiliza un entorno con credenciales asignadas. No pegues claves en código, argumentos o Git. Las claves públicas de configuración web de Firebase no sustituyen las reglas de autorización.
+
+También puede reutilizarse la sesión local de Firebase CLI con `$env:PROFERONALD_CLI_AUTH='1'` en PowerShell. El código usa el token existente en memoria, incluyendo el alcance de identificación necesario para RTDB; no crea ni copia claves de servicio. Esta alternativa requiere que la cuenta conectada ya tenga permisos administrativos sobre el proyecto. No amplía permisos IAM.
+
+El secreto de GitHub existente permite consultar Authentication y desplegar Hosting, pero la inspección detectó que no tiene los permisos de datos y Storage necesarios para una migración o publicación completa. Se conserva sin ampliar privilegios. Para esas operaciones se utilizó la sesión local autorizada; un despliegue completo desde GitHub seguirá necesitando credenciales con los permisos correspondientes. El flujo **Inspect Firebase readiness** solo consulta metadatos y no aplica cambios.
 
 ## Respaldo, migración y permisos
 

@@ -33,6 +33,9 @@ export async function verifyBackup(directory) {
   for (const item of manifest.storage) {
     if (!/^[a-f0-9]{64}\.bin$/.test(item.local) || digest(await readFile(path.join(target, item.local))) !== item.sha256) throw new Error('El respaldo de archivos no supera la verificación.');
   }
+  for (const [name, checksum] of Object.entries(manifest.extra || {})) {
+    if (!/^[a-zA-Z0-9_-]+\.json$/.test(name) || digest(await readFile(path.join(target, name))) !== checksum) throw new Error('El respaldo adicional no supera la verificación.');
+  }
   return { manifest, database: JSON.parse(database), target };
 }
 export async function restore(client, directory, { databaseOnly = false } = {}) {

@@ -1,0 +1,30 @@
+import { chromium } from '@playwright/test';
+import assert from 'node:assert/strict';
+import { encodePID } from '../src/core.js';
+const base = process.env.HEALTH_ORIGIN || 'https://proferonald.com';
+const browser = await chromium.launch({ headless: true });
+try {
+  const page = await browser.newPage(); const failures = [];
+  page.on('pageerror', () => failures.push('javascript'));
+  await page.goto(base, { waitUntil: 'domcontentloaded' });
+  await page.locator('#view article h2 a').first().waitFor({ timeout: 30000 });
+  const count = await page.locator('#view article h2 a').count(); assert(count > 0);
+  const href = await page.locator('#view article h2 a').first().getAttribute('href');
+  const id = /\/publicaciones\/([-\w]{20})\//.exec(href)?.[1]; assert(id);
+  await page.locator('#view article h2 a').first().click();
+  await page.locator('#article-body').waitFor({ timeout: 15000 });
+  const server = await page.request.get(new URL(`/publicaciones/${id}/`, base).href);
+  assert.equal(server.status(), 200); assert.match(server.headers()['cache-control'], /no-store/);
+  assert.match(await server.text(), /og:type" content="article/);
+  await page.reload(); await page.locator('#article-body').waitFor();
+  await page.goto(new URL('/?pid=' + encodePID(id), base).href); await page.locator('#article-body').waitFor({ timeout: 15000 });
+  await page.goto(new URL('/archivos/', base).href); await page.locator('#access-message').waitFor();
+  await page.waitForFunction(() => document.querySelector('#access-message').textContent.length > 0);
+  assert.equal(await page.locator('#manager').isVisible(), false);
+  await page.setViewportSize({ width: 375, height: 812 }); await page.goto(base);
+  await page.locator('#view article h2 a').first().waitFor({ timeout: 15000 });
+  assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+  await page.screenshot({ path: '.local/live-preview.png', fullPage: true });
+  assert.equal(failures.length, 0);
+  console.log(JSON.stringify({ live: true, publicPostsOnFirstPage: count, articleSSR: true, legacyLinks: true, anonymousManagerDenied: true, mobileLayout: true, javascriptErrors: failures.length }));
+} finally { await browser.close(); }

@@ -1,9 +1,6 @@
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { isDeepStrictEqual } from 'node:util';
-import { JSDOM } from 'jsdom';
 import { adminClient } from './admin-client.mjs';
-import { contentTools } from '../src/content.js';
-import { migrationUpdates } from '../src/migration.js';
 import { firebaseConfig } from '../src/config.js';
 const owner = 'QrcyTgnWIDPDI5CytBKSe8GTjoo2';
 async function main() {
@@ -18,13 +15,9 @@ async function main() {
   };
   const summary = {};
   try {
-    const data = await request('database', `${firebaseConfig.databaseURL}/.json`);
-    summary.database = { accessible: true, articles: Object.keys(data?.articulos || {}).length, active: Object.values(data?.articulos || {}).filter(p => Number(p.activo) === 1).length, published: Object.keys(data?.publicaciones || {}).length, legacyProfiles: Object.keys(data?.usuarios || {}).length, schemaVersion: data?.operacion?.schemaVersion || 1 };
-    try {
-      const tools = contentTools(new JSDOM('').window);
-      const plan = migrationUpdates(data || {}, tools.sanitize, tools.text);
-      summary.migration = { valid: true, articles: plan.articles, profiles: plan.profiles };
-    } catch (error) { summary.migration = { valid: false, reason: error.message }; }
+    const schema = await request('schema-version', `${firebaseConfig.databaseURL}/operacion/schemaVersion.json`);
+    const published = await request('publications', `${firebaseConfig.databaseURL}/publicaciones.json?shallow=true`);
+    summary.database = { accessible: true, published: Object.keys(published || {}).length, schemaVersion: schema || 1 };
     const currentRules = await request('database-rules', `${firebaseConfig.databaseURL}/.settings/rules.json`);
     summary.database.rulesMatch = isDeepStrictEqual(currentRules, JSON.parse(await readFile('database.rules.json', 'utf8')));
   } catch (error) { summary.database = { accessible: false, code: error.code || 'read-failed' }; }

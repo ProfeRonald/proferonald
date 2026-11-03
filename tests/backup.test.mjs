@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { backup, restore, verifyBackup, localBackupPath } from '../scripts/backup.mjs';
+import { backup, restore, verifyBackup, localBackupPath, digest } from '../scripts/backup.mjs';
 await mkdir('.local/test-backups', { recursive: true });
 function fixture() {
   let database = { articulos: { a: { titulo: 'Conservado' } } };
@@ -26,3 +26,14 @@ test('restore rejects corrupted files before making writes', async () => {
   await assert.rejects(restore(client, directory)); assert.equal(client.state().database.articulos.a.titulo, 'Conservado');
 });
 test('backup paths cannot escape ignored local directory', () => { assert.throws(() => localBackupPath('../outside')); assert.throws(() => localBackupPath('.local')); });
+test('rollback rules and original administrator claims are checksum verified', async () => {
+  const client = fixture(); const directory = await mkdtemp(path.resolve('.local/test-backups/extra-'));
+  const manifest = await backup(client, directory);
+  const state = JSON.stringify({ uid: 'owner', customClaims: {} });
+  await writeFile(path.join(directory, 'auth-owner.json'), state);
+  manifest.extra = { 'auth-owner.json': digest(state) };
+  await writeFile(path.join(directory, 'manifest.json'), JSON.stringify(manifest));
+  await verifyBackup(directory);
+  await writeFile(path.join(directory, 'auth-owner.json'), 'altered');
+  await assert.rejects(verifyBackup(directory));
+});
