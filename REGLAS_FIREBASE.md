@@ -72,6 +72,6 @@ npx firebase deploy --project proferonald-fb --only database,storage,functions,h
 
 También pueden reemplazarse los documentos de reglas desde las pestañas **Rules** de Realtime Database y Storage en Firebase Console, siempre dentro de la misma transición coordinada. La configuración del repositorio ya apunta a los dos archivos definitivos.
 
-Functions necesita facturación habilitada y permisos de despliegue. El flujo de GitHub verifica primero los datos y el administrador, y se detiene si todavía no están preparados. Sincronizar el repositorio no equivale a haber completado la migración ni a haber publicado estas reglas.
+Functions necesita facturación habilitada y permisos de despliegue. Una subida a `main` ejecuta únicamente las verificaciones. Para publicar desde GitHub, ejecutar manualmente **Actions → Verify main and manually deploy Firebase → Run workflow**, después de preparar la migración y el administrador. El flujo verifica primero ambos requisitos y se detiene si no están preparados. Sincronizar el repositorio no equivale a haber completado la migración ni a haber publicado estas reglas.
 
 Los detalles de restauración, reversión, pruebas con emuladores y alertas están en [OPERACION.md](OPERACION.md).

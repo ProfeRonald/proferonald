@@ -82,7 +82,7 @@ node scripts/health.mjs
 
 Primero validar una vista previa y el entorno de ensayo. Las vistas previas normales no cambian reglas ni datos y apuntan al mismo proyecto configurado; para ensayos aislados usar emuladores. Una vista previa de Hosting por sí sola no prueba la nueva función si aún no está desplegada; comprobarla en emulador o en un proyecto de staging antes de activar producción.
 
-El workflow de `main` repite las comprobaciones, verifica versión de esquema, consistencia del espejo y existencia del administrador, genera el sitemap y publica. Requiere el secreto existente `FIREBASE_SERVICE_ACCOUNT_PROFERONALD_FB` con acceso a estos recursos. No publica si el control previo falla. No se crean commits, pushes ni despliegues como parte de la revisión local.
+Una subida a `main` ejecuta únicamente las comprobaciones. La publicación requiere ejecutar manualmente **Verify main and manually deploy Firebase** mediante **Run workflow** en GitHub Actions, o el comando de despliegue anterior. El trabajo manual verifica versión de esquema, consistencia del espejo y existencia del administrador, genera el sitemap y publica. Requiere el secreto existente `FIREBASE_SERVICE_ACCOUNT_PROFERONALD_FB` con acceso a estos recursos. No publica si el control previo falla. La sincronización del repositorio no aplica reglas ni migra datos en Firebase.
 
 ## Reversión y observación
 
