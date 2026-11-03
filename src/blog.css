@@ -4,6 +4,8 @@
 @import '../docs/assets/css/theme.css';
 [hidden] { display: none !important; }
 html { scroll-padding-top: 6rem; }
+.mediumnavigation.fixed-top { position: fixed; top: 0; right: 0; left: 0; }
+.site-content .intro { margin-top: -2rem; }
 
 .skip-link { position: fixed; top: -100px; left: 1rem; z-index: 2000; background: white; padding: 1rem; }
 .skip-link:focus { top: 0; }
@@ -28,7 +30,13 @@ math-field[read-only] { border: 0; pointer-events: none; }
 .gallery-item { background: white; border: 1px solid #ddd; }
 .gallery-item img { object-fit: cover; }
 .footer { margin-top: 3rem; }
-@media (max-width: 767px) { .navbar { position: static !important; } .site-content { margin-top: 0; padding-top: 1rem; } h1 { font-size: 2rem; } .comment.reply { margin-left: .7rem; } .navbar-links { margin-top: .5rem; } }
+@media (max-width: 767px) {
+  .navbar { position: fixed; top: 0; max-height: 100dvh; overflow-y: auto; }
+  .site-content { margin-top: 57px; padding-top: 1rem; }
+  .site-content .intro { margin-top: 0; }
+  h1 { font-size: 2rem; }
+  .comment.reply { margin-left: .7rem; }
+}
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
 
 .navbar .nav-link { background:none; border:0; cursor:pointer; }
