@@ -1,0 +1,127 @@
+import { test, expect } from '@playwright/test';
+import { encodePID } from '../../src/core.js';
+import { readFile } from 'node:fs/promises';
+async function signIn(page, email, selector = '#login') {
+  const popupPromise = page.waitForEvent('popup');
+  await page.locator(selector).click();
+  const popup = await popupPromise;
+  // The emulator shows accounts before its external widget script attaches handlers.
+  await popup.waitForLoadState('load');
+  await popup.getByText(email, { exact: true }).click();
+  await expect(page.locator(selector)).toHaveText('Salir', { timeout: 15000 });
+}
+test('guest sees public posts, searches by category and keeps legacy links', async ({ page }) => {
+  await page.goto('/?emulators=1');
+  await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Artículo/ })).toHaveCount(6);
+  await page.getByRole('button', { name: 'Anteriores', exact: true }).click();
+  await expect(page.getByText('Página 2', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Más recientes' }).click();
+  await expect(page.getByText('Página 1', { exact: true })).toBeVisible();
+  const first = page.getByRole('link', { name: 'Artículo 8', exact: true });
+  await first.click();
+  await expect(page.getByRole('heading', { name: 'Artículo 8', exact: true })).toBeVisible();
+  await expect(page.getByText('Respuesta asíncrona', { exact: true })).toBeVisible();
+  await expect(page.locator('#article-body script')).toHaveCount(0);
+  await page.reload(); await expect(page.getByRole('heading', { name: 'Artículo 8', exact: true })).toBeVisible();
+  await page.goBack(); await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
+  await page.getByLabel('Buscar publicaciones').fill('inexistente'); await page.getByRole('button', { name: 'Buscar', exact: true }).click();
+  await expect(page.getByText('No hay publicaciones que coincidan.')).toBeVisible();
+  await page.getByRole('button', { name: 'Limpiar', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
+  await page.goto('/?emulators=1&pid=' + encodePID('-NCTb9s4nnhF0cY0sAr8'));
+  await expect(page.getByRole('heading', { name: 'Artículo 8', exact: true })).toBeVisible();
+});
+test('invalid link, contact and manager do not expose admin tools', async ({ page }) => {
+  await page.goto('/?emulators=1&pid=invalid'); await expect(page.getByRole('heading', { name: 'Enlace no válido' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Nuevo', exact: true })).toBeHidden();
+  await page.getByRole('link', { name: 'Contacto', exact: true }).click(); await expect(page.getByRole('heading', { name: 'Contacto', exact: true })).toBeVisible();
+  await page.goto('/archivos/?emulators=1'); await expect(page.locator('#manager')).toBeHidden();
+  await expect(page.getByText('Inicia sesión con la cuenta administradora.')).toBeVisible();
+  const missing = await page.request.get('/assets/not-found.js'); expect(missing.status()).toBe(404);
+});
+test('mobile navigation, keyboard focus and no eager YouTube requests', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  const youtube = []; page.on('request', request => { if (/youtube/.test(request.url())) youtube.push(request.url()); });
+  await page.goto('/?emulators=1');
+  await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(youtube).toHaveLength(0);
+  await page.keyboard.press('Tab'); await expect(page.getByRole('link', { name: 'Saltar al contenido' })).toBeFocused();
+  await page.screenshot({ path: '.local/mobile-preview.png', fullPage: true });
+});
+test('administrator creates, edits and withdraws a post; failed save preserves text', async ({ page }) => {
+  await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
+  await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+  await page.getByLabel('Título', { exact: true }).fill('Publicación de prueba');
+  await page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)').fill('<p>Contenido seguro $x=1$</p><script>evil()</script>');
+  await page.getByLabel('Categorías separadas por comas').fill('Matemática');
+  await page.getByLabel('Publicar (desmarcado guarda un borrador privado)').check();
+  await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Publicación de prueba', exact: true })).toBeVisible();
+  await expect(page.locator('#article-body script')).toHaveCount(0);
+  await expect(page.locator('math-field')).toHaveCount(1);
+  await expect.poll(() => page.evaluate(() => document.fonts.check('16px KaTeX_Main'))).toBe(true);
+  await page.getByRole('button', { name: 'Editar', exact: true }).click();
+  await page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)').fill('<script>evil()</script>');
+  await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+  await expect(page.getByText('El contenido no puede estar vacío.')).toBeVisible();
+  await expect(page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)')).toHaveValue('<script>evil()</script>');
+  await page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)').fill('<p>Contenido actualizado</p>');
+  await page.getByLabel('Publicar (desmarcado guarda un borrador privado)').uncheck();
+  await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+  await expect(page.getByText('Borrador privado', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Salir', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Acceso restringido', exact: true })).toBeVisible();
+});
+test('authenticated comments and replies remain literal, and subscriptions do not duplicate', async ({ page }) => {
+  await page.goto('/?emulators=1&pid=' + encodePID('-NCTb9s4nnhF0cY0sAr8'));
+  await signIn(page, 'user@example.test');
+  const text = '<img src=x onerror=alert(1)> Comentario único';
+  await page.getByLabel('Comentario (entre 4 y 600 caracteres)').fill(text);
+  await page.getByRole('button', { name: 'Publicar comentario', exact: true }).click();
+  await expect(page.getByText(text, { exact: true })).toHaveCount(1);
+  await expect(page.locator('#comments img')).toHaveCount(0);
+  const comment = page.locator('#comments > article').filter({ hasText: text });
+  await comment.getByRole('button', { name: 'Responder', exact: true }).click();
+  await page.getByLabel('Comentario (entre 4 y 600 caracteres)').fill('Respuesta de prueba');
+  await page.getByRole('button', { name: 'Publicar comentario', exact: true }).click();
+  await expect(page.getByText('Respuesta de prueba', { exact: true })).toHaveCount(1);
+  for (let i = 0; i < 3; i++) {
+    await page.getByRole('link', { name: 'Principal', exact: true }).click();
+    await page.getByRole('link', { name: 'Artículo 8', exact: true }).click();
+    await expect(page.getByText('Respuesta de prueba', { exact: true })).toHaveCount(1);
+  }
+});
+test('manager grants admin access only and handles a private document upload', async ({ page }) => {
+  await page.goto('/archivos/?emulators=1'); await signIn(page, 'admin@example.test', '#manager-auth');
+  await expect(page.locator('#manager')).toBeVisible();
+  await page.getByRole('button', { name: 'Documentos privados', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'archivos', exact: true })).toBeVisible();
+  await page.locator('#upload-file').setInputFiles({ name: 'prueba.txt', mimeType: 'text/plain', buffer: Buffer.from('documento de prueba') });
+  await page.getByRole('button', { name: 'Subir archivo', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Descargar', exact: true })).toHaveCount(1);
+  const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Descargar', exact: true }).click(); await download;
+  await page.getByRole('button', { name: 'Salir', exact: true }).click();
+  await expect(page.locator('#manager')).toBeHidden();
+  await signIn(page, 'user@example.test', '#manager-auth');
+  await expect(page.getByText('Tu cuenta no tiene permiso de administrador.')).toBeVisible();
+  await expect(page.locator('#manager')).toBeHidden();
+});
+test('new draft images stay private until the article is published', async ({ page }) => {
+  await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
+  await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+  await page.getByLabel('Título', { exact: true }).fill('Borrador con imagen privada');
+  await page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)').fill('Contenido reservado hasta publicar.');
+  await page.locator('#photo-upload').setInputFiles({ name: 'privada.png', mimeType: 'image/png', buffer: await readFile('docs/assets/images/logo.png') });
+  await expect(page.getByText('Imagen guardada en privado. Se hará pública al publicar el artículo.')).toBeVisible();
+  await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+  await expect(page.getByText('Borrador privado', { exact: true })).toBeVisible();
+  await expect(page.getByRole('img', { name: 'Imagen privada del borrador', exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Editar', exact: true }).click();
+  await page.getByLabel('Publicar (desmarcado guarda un borrador privado)').check();
+  await page.getByRole('button', { name: 'Guardar', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Borrador con imagen privada', exact: true })).toBeVisible();
+  await expect(page.getByText('Borrador privado', { exact: true })).toHaveCount(0);
+  await expect(page.getByRole('img', { name: 'Borrador con imagen privada', exact: true })).toBeVisible();
+});

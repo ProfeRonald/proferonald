@@ -64,3 +64,13 @@ node_modules/
 
 # dotenv environment variables file
 .env
+
+.local/
+node_modules/
+docs/assets/build/
+dist/
+playwright-report/
+test-results/
+coverage/
+*.local
+functions/lib/

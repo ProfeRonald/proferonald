@@ -1,0 +1,33 @@
+name: Verify project
+on:
+  pull_request:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm ci --prefix functions
+      - run: npm run check
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm run test:rules
+      - run: npx playwright install --with-deps chromium
+      - name: Browser regression against emulators
+        run: npx firebase emulators:exec --project demo-proferonald --only auth,database,storage "node scripts/seed-emulators.mjs && npm run test:browser"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Server HTML and Hosting routing
+        run: npx firebase emulators:exec --project demo-proferonald --only auth,database,storage,functions,hosting "node scripts/seed-emulators.mjs && node scripts/test-public-service.mjs"
+      - run: npm audit --prefix functions --audit-level=high

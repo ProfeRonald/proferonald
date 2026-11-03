@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["https://proferonald.com", "https://proferonald-fb.web.app", "https://proferonald-fb.firebaseapp.com"],
+    "method": ["GET", "HEAD"],
+    "responseHeader": ["Content-Type", "Content-Disposition"],
+    "maxAgeSeconds": 3600
+  }
+]

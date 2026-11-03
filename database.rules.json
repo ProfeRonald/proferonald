@@ -1,0 +1,145 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "articulos": {
+      ".read": "auth != null && auth.token.admin === true",
+      "$id": {
+        ".write": "auth != null && auth.token.admin === true",
+        ".validate": "newData.hasChildren(['titulo', 'contenido', 'imagen', 'categorias', 'activo', 'fecha'])",
+        "titulo": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 180"
+        },
+        "contenido": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100000"
+        },
+        "imagen": {
+          ".validate": "newData.isString() && newData.val().length <= 2048 && (newData.val() === '' || newData.val().beginsWith('https://') || newData.val().beginsWith('private:imagenes/') || (auth != null && auth.token.aud === 'demo-proferonald' && newData.val().beginsWith('http://127.0.0.1:9199/')))"
+        },
+        "categorias": {
+          ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "activo": {
+          ".validate": "newData.val() === 0 || newData.val() === 1"
+        },
+        "fecha": {
+          ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= now"
+        },
+        "actualizado": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "publicaciones": {
+      ".read": true,
+      "$id": {
+        ".write": "auth != null && auth.token.admin === true",
+        ".validate": "newData.hasChildren(['titulo', 'contenido', 'imagen', 'categorias', 'activo', 'fecha']) && newData.child('activo').val() === 1",
+        "titulo": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 180"
+        },
+        "contenido": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 100000"
+        },
+        "imagen": {
+          ".validate": "newData.isString() && newData.val().length <= 2048 && (newData.val() === '' || newData.val().beginsWith('https://') || (auth != null && auth.token.aud === 'demo-proferonald' && newData.val().beginsWith('http://127.0.0.1:9199/')))"
+        },
+        "categorias": {
+          ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "activo": {
+          ".validate": "newData.val() === 1"
+        },
+        "fecha": {
+          ".validate": "newData.isNumber() && newData.val() > 0 && newData.val() <= now"
+        },
+        "actualizado": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "perfilesPublicos": {
+      "$uid": {
+        ".read": true,
+        ".write": "auth != null && auth.uid === $uid",
+        ".validate": "newData.hasChildren(['displayName', 'photoURL'])",
+        "displayName": {
+          ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 120"
+        },
+        "photoURL": {
+          ".validate": "newData.isString() && newData.val().length <= 2048 && (newData.val() === '' || newData.val().beginsWith('https://'))"
+        },
+        "$other": {
+          ".validate": false
+        }
+      }
+    },
+    "usuarios": {
+      ".read": "auth != null && auth.token.admin === true",
+      ".write": "auth != null && auth.token.admin === true"
+    },
+    "perfilesPrivados": {
+      "$uid": {
+        ".read": "auth != null && (auth.uid === $uid || auth.token.admin === true)",
+        ".write": "auth != null && auth.token.admin === true"
+      }
+    },
+    "comentarios": {
+      "$post": {
+        ".read": "(auth != null && auth.token.admin === true) || (root.child('publicaciones').child($post).exists() && query.limitToLast != null && query.limitToLast <= 20)",
+        ".write": "auth != null && auth.token.admin === true",
+        "$comment": {
+          ".validate": "newData.hasChildren(['comentario', 'usuario', 'fecha'])",
+          "comentario": {
+            ".validate": "newData.isString() && newData.val().length >= 4 && newData.val().length <= 600 && (!data.exists() || newData.val() === data.val())"
+          },
+          "usuario": {
+            ".validate": "newData.isString() && newData.val().length <= 128 && (!data.exists() || newData.val() === data.val())"
+          },
+          "fecha": {
+            ".validate": "newData.isNumber() && newData.val() <= now && (data.exists() ? newData.val() === data.val() : newData.val() >= now - 60000)"
+          },
+          "$other": {
+            ".validate": false
+          },
+          ".write": "auth != null && root.child('publicaciones').child($post).exists() && ((!data.exists() && newData.exists() && newData.child('usuario').val() === auth.uid && !newData.hasChild('respuestas')) || (!newData.exists() && data.child('usuario').val() === auth.uid))"
+        }
+      }
+    },
+    "respuestas": {
+      "$post": {
+        ".write": "auth != null && auth.token.admin === true",
+        "$comment": {
+          ".read": "(auth != null && auth.token.admin === true) || (root.child('publicaciones').child($post).exists() && query.limitToLast != null && query.limitToLast <= 20)",
+          ".write": "auth != null && !newData.exists() && root.child('comentarios').child($post).child($comment).child('usuario').val() === auth.uid",
+          "$reply": {
+            ".validate": "newData.hasChildren(['respuesta', 'usuario', 'fecha'])",
+            "respuesta": {
+              ".validate": "newData.isString() && newData.val().length >= 4 && newData.val().length <= 600 && (!data.exists() || newData.val() === data.val())"
+            },
+            "usuario": {
+              ".validate": "newData.isString() && newData.val().length <= 128 && (!data.exists() || newData.val() === data.val())"
+            },
+            "fecha": {
+              ".validate": "newData.isNumber() && newData.val() <= now && (data.exists() ? newData.val() === data.val() : newData.val() >= now - 60000)"
+            },
+            "$other": {
+              ".validate": false
+            },
+            ".write": "auth != null && root.child('publicaciones').child($post).exists() && root.child('comentarios').child($post).child($comment).exists() && ((!data.exists() && newData.exists() && newData.child('usuario').val() === auth.uid) || (!newData.exists() && data.child('usuario').val() === auth.uid))"
+          }
+        }
+      }
+    },
+    "operacion": {
+      ".read": "auth != null && auth.token.admin === true",
+      ".write": "auth != null && auth.token.admin === true"
+    }
+  }
+}

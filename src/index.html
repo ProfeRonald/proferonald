@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ProfeRonald - Blog</title>
+  <meta name="description" content="Artículos, recursos y reflexiones sobre educación y matemáticas de Ronald Jiménez.">
+  <meta property="og:title" content="ProfeRonald - Blog">
+  <meta property="og:type" content="website">
+  <meta property="og:description" content="Artículos, recursos y reflexiones sobre educación y matemáticas de Ronald Jiménez.">
+  <meta property="og:image" content="https://proferonald.com/assets/images/logo.png">
+  <meta property="og:url" content="https://proferonald.com/">
+  <meta property="og:site_name" content="ProfeRonald - Blog">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://proferonald.com/">
+  <link rel="icon" href="/assets/images/favicon.ico">
+  <link rel="stylesheet" href="{{APP_CSS}}">
+</head>
+<body>
+<a class="skip-link" href="#view">Saltar al contenido</a>
+<header class="navbar navbar-light bg-white fixed-top mediumnavigation">
+  <div class="container">
+    <a class="navbar-brand" href="/" data-route><img src="/assets/images/logo.webp" width="45" height="45" alt=""> ProfeRonald.Com</a>
+    <nav aria-label="Principal" class="navbar-links">
+      <a data-route href="/">Principal</a>
+      <details><summary>Categorías</summary><div><a data-route href="/?categoria=Matem%C3%A1tica">Matemática</a><a data-route href="/?categoria=Noticias">Noticias</a></div></details>
+      <button type="button" data-admin hidden data-action="new" class="btn btn-link">Nuevo</button>
+      <a data-admin hidden data-route href="/#borradores">Borradores</a>
+      <a data-admin hidden href="/archivos/">Archivos</a>
+      <a data-route href="/#about">Ronald Jiménez</a>
+      <span id="user-name"></span><button type="button" class="btn btn-outline-primary" id="login">Entrar con Google</button>
+    </nav>
+  </div>
+</header>
+<div class="site-content container">
+  <div id="app-status" role="status" aria-live="polite" hidden></div>
+  <form id="search-form" role="search" class="mb-4">
+    <label for="search-text">Buscar publicaciones</label>
+    <div class="input-group"><input id="search-text" name="q" type="search" class="form-control" maxlength="160"><div class="input-group-append"><button type="submit" class="btn btn-primary">Buscar</button><button type="button" id="clear-search" class="btn btn-outline-secondary">Limpiar</button></div></div>
+  </form>
+  <main id="view" tabindex="-1"><h1>Blog del ProfeRonald</h1><p>Recursos de educación y matemáticas.</p><p role="status">Cargando publicaciones…</p></main>
+  <noscript><p>Activa JavaScript para buscar, iniciar sesión y comentar. Las publicaciones estáticas están disponibles desde el mapa del sitio.</p><a href="/sitemap.xml">Mapa del sitio</a></noscript>
+  <section id="editor" aria-labelledby="editor-title" hidden>
+    <h1 id="editor-title">Nueva publicación</h1>
+    <form id="article-form">
+      <div class="form-group"><label for="article-title">Título</label><input class="form-control" id="article-title" name="titulo" required maxlength="180"></div>
+      <div class="form-group"><label for="article-content">Contenido (HTML básico y fórmulas entre $ o $$)</label><textarea class="form-control" id="article-content" name="contenido" required maxlength="100000" rows="14"></textarea></div>
+      <div class="form-group"><label for="article-media">Imagen HTTPS o video de YouTube</label><input class="form-control" id="article-media" name="mediaURL" type="url" maxlength="2048"><input name="imagen" type="hidden"><p id="private-photo-note" class="small" hidden>Imagen subida en privado. Se hará pública al publicar el artículo.</p></div>
+      <div class="form-group"><label for="photo-upload">Subir imagen (JPEG, PNG o WebP; máximo 5 MB)</label><input type="file" id="photo-upload" accept="image/jpeg,image/png,image/webp" class="form-control-file"><button type="button" data-action="gallery" class="btn btn-outline-primary mt-2">Abrir galería pública</button><p class="small">Las imágenes nuevas permanecen privadas mientras sean borradores. La galería contiene imágenes ya públicas.</p></div>
+      <div class="form-group"><label for="article-categories">Categorías separadas por comas</label><input class="form-control" id="article-categories" name="categorias" maxlength="500"></div>
+      <div class="form-check mb-3"><input type="checkbox" class="form-check-input" name="activo" id="article-active"><label for="article-active" class="form-check-label">Publicar (desmarcado guarda un borrador privado)</label></div>
+      <button class="btn btn-primary" type="submit" id="save-article">Guardar</button><button class="btn btn-link" type="button" data-action="cancel-edit">Cancelar</button>
+    </form>
+    <section id="gallery" hidden aria-labelledby="gallery-title"><h2 id="gallery-title">Galería de imágenes</h2><button type="button" data-action="close-gallery" class="btn btn-secondary">Cerrar galería</button><div id="gallery-items" class="gallery-grid my-3"></div><button type="button" id="gallery-more" class="btn btn-outline-primary" hidden>Cargar más imágenes</button></section>
+  </section>
+</div>
+<footer class="footer"><div class="container"><div class="row">
+  <div class="col-sm-4"><h2 class="h5">ProfeRonald</h2><p>Educación y matemáticas.</p><a data-route href="/#contacto">Contacto</a></div>
+  <div class="col-sm-4"><h2 class="h5">Recursos</h2><ul><li><a href="https://escuelard.com" rel="noopener noreferrer">escuelaRD</a></li><li><a href="https://math--chat.web.app" rel="noopener noreferrer">MathChats</a></li><li><a href="https://farmaciadarselys.com" rel="noopener noreferrer">Farmacia Darselys</a></li><li><a href="https://instagram.com/politecnicoelsabrito" rel="noopener noreferrer">Politécnico Maestra Elsa Brito</a></li><li><a href="https://dailyverses.net/es" rel="noopener noreferrer">Versículo del día</a></li></ul></div>
+  <div class="col-sm-4"><h2 class="h5">Información</h2><ul><li><a data-route href="/#terminos">Términos de uso</a></li><li><a data-route href="/#politica">Privacidad</a></li><li><a href="https://www.facebook.com/ProfeRonaldCom/" rel="noopener noreferrer">Facebook</a></li><li><a href="https://www.linkedin.com/in/proferonald/" rel="noopener noreferrer">LinkedIn</a></li></ul></div>
+</div><nav aria-label="Redes sociales" class="my-3"><a href="https://www.instagram.com/proferonald/" rel="noopener noreferrer">Instagram</a> · <a href="https://twitter.com/ProfeRonald" rel="noopener noreferrer">Twitter</a> · <a href="https://proferonald.tumblr.com/" rel="noopener noreferrer">Tumblr</a> · <a href="https://www.pinterest.com/proferonald/" rel="noopener noreferrer">Pinterest</a> · <a href="https://vimeo.com/proferonald" rel="noopener noreferrer">Vimeo</a> · <a href="https://soundcloud.com/proferonald" rel="noopener noreferrer">SoundCloud</a> · <a href="https://github.com/proferonald" rel="noopener noreferrer">GitHub</a></nav><p id="copy">© SaaS Dominicana</p></div></footer>
+<script type="module" src="{{APP_JS}}"></script>
+</body>
+</html>

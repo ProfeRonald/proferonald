@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "articulos": {
+      ".read": true,
+      ".write": "auth !== null && auth.uid === 'QrcyTgnWIDPDI5CytBKSe8GTjoo2'"
+    },
+    "comentarios": {
+      "$articulo": {
+        ".read": true,
+        "$comentario": {
+          ".write": "newData.exists() || auth.uid === 'QrcyTgnWIDPDI5CytBKSe8GTjoo2'",
+          ".validate": "newData.child('comentario').isString() && newData.child('comentario').val().length > 3 && newData.child('comentario').val().length <= 600 && newData.child('fecha').val() <= now"
+        }
+      }
+    },
+    "usuarios": {
+      "$uid": {
+        ".read": true,
+        ".write": "auth !== null && $uid === auth.uid"
+      }
+    }
+  }
+}
