@@ -36,9 +36,11 @@ node scripts/health.mjs
 
 La sincronización de `main` ejecuta verificaciones, sin publicar automáticamente. La publicación completa desde GitHub sigue requiriendo un secreto con los permisos de datos, Storage y Functions que actualmente no tiene; usar la sesión local autorizada mientras no se ajuste expresamente ese acceso. El flujo **Inspect Firebase readiness** es de solo lectura y no descarga artículos o perfiles para contar registros.
 
-## Pendientes de preferencias del propietario
+## Alertas de gasto y pendientes operativos
 
-Para configurar avisos de gasto hacen falta el correo destinatario y el umbral mensual en USD. No se eligió una dirección ni un importe sin esa información. Las alertas no actúan como límite de consumo.
+La alerta mensual de gasto quedó creada y verificada en Cloud Billing con el destinatario y el importe solicitados por el propietario. Su filtro incluye exclusivamente `proferonald-fb`; avisa al alcanzar el 100 % del gasto reportado y utiliza únicamente el canal de correo elegido, sin destinatarios IAM predeterminados. No se configuró un límite que detenga servicios.
+
+El correo, los identificadores de facturación y la configuración leída de nuevo desde Google Cloud se conservan en `.local/billing-alert-result.json`, excluido de Git y de Hosting. No se publican estos datos de contacto o facturación en el repositorio.
 
 La CSP permanece en modo de reporte para observar el comportamiento real antes de imponerla. Los respaldos recurrentes y su retención fuera de este equipo deben configurarse en un destino privado elegido por el propietario; el respaldo de esta activación está verificado y disponible localmente.
 
