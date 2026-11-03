@@ -1,6 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { encodePID } from '../../src/core.js';
 import { readFile } from 'node:fs/promises';
+test.beforeEach(async ({page}) => {
+  await page.route('https://dailyverses.net/get/verse.js?*', route => route.fulfill({contentType:'text/javascript',body:'document.querySelector("#dailyVersesWrapper").innerHTML = "<b>Versículo de prueba</b>";'}));
+});
 async function signIn(page, email, selector = '#login') {
   const popupPromise = page.waitForEvent('popup');
   await page.locator(selector).click();
@@ -13,7 +16,17 @@ async function signIn(page, email, selector = '#login') {
 test('guest sees public posts, searches by category and keeps legacy links', async ({ page }) => {
   await page.goto('/?emulators=1');
   await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: /Artículo/ })).toHaveCount(6);
+  await expect(page.locator('#view article h2')).toHaveCount(6);
+  await expect(page.locator('#carousel')).toBeVisible();
+  await expect(page.locator('#dailyVersesWrapper')).toHaveText('Versículo de prueba');
+  await expect(page.locator('#novedades article')).toHaveCount(2);
+  await expect(page.locator('.muro-der')).toBeVisible();
+  await expect(page.locator('.footer-widget')).toHaveCount(4);
+  await expect(page.locator('body')).toHaveCSS('font-family', /Rubik/);
+  await page.getByRole('button', {name:'Siguiente destacada',exact:true}).click();
+  await expect(page.locator('[data-feature="1"]')).toBeVisible();
+  await page.getByRole('button', {name:'Destacada 1',exact:true}).click();
+  await expect(page.locator('[data-feature="0"]')).toBeVisible();
   await page.getByRole('button', { name: 'Anteriores', exact: true }).click();
   await expect(page.getByText('Página 2', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Más recientes' }).click();
@@ -23,6 +36,8 @@ test('guest sees public posts, searches by category and keeps legacy links', asy
   await expect(page.getByRole('heading', { name: 'Artículo 8', exact: true })).toBeVisible();
   await expect(page.getByText('Respuesta asíncrona', { exact: true })).toBeVisible();
   await expect(page.locator('#article-body script')).toHaveCount(0);
+  await expect(page.locator('#post-navigation a')).toHaveCount(1);
+  await expect(page.getByRole('link', {name:'Compartir en Facebook', exact:true})).toBeVisible();
   await page.reload(); await expect(page.getByRole('heading', { name: 'Artículo 8', exact: true })).toBeVisible();
   await page.goBack(); await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
   await page.getByLabel('Buscar publicaciones').fill('inexistente'); await page.getByRole('button', { name: 'Buscar', exact: true }).click();
@@ -47,7 +62,14 @@ test('mobile navigation, keyboard focus and no eager YouTube requests', async ({
   await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(youtube).toHaveLength(0);
-  await page.keyboard.press('Tab'); await expect(page.getByRole('link', { name: 'Saltar al contenido' })).toBeFocused();
+  const menu = page.getByRole('button', {name:'Abrir menú',exact:true});
+  await menu.click();
+  await expect(page.getByRole('link',{name:'Principal',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Categorías',exact:true}).click();
+  await page.getByRole('link',{name:'Matemática',exact:true}).first().click();
+  await expect(page.getByRole('heading',{name:'Resultados',exact:true})).toBeVisible();
+  await expect(menu).toHaveAttribute('aria-expanded','false');
+  await page.goto('/?emulators=1'); await page.keyboard.press('Tab'); await expect(page.getByRole('link', { name: 'Saltar al contenido' })).toBeFocused();
   await page.screenshot({ path: '.local/mobile-preview.png', fullPage: true });
 });
 test('administrator creates, edits and withdraws a post; failed save preserves text', async ({ page }) => {
@@ -81,7 +103,7 @@ test('authenticated comments and replies remain literal, and subscriptions do no
   await page.getByLabel('Comentario (entre 4 y 600 caracteres)').fill(text);
   await page.getByRole('button', { name: 'Publicar comentario', exact: true }).click();
   await expect(page.getByText(text, { exact: true })).toHaveCount(1);
-  await expect(page.locator('#comments img')).toHaveCount(0);
+  await expect(page.locator('#comments .comment-text img')).toHaveCount(0);
   const comment = page.locator('#comments > article').filter({ hasText: text });
   await comment.getByRole('button', { name: 'Responder', exact: true }).click();
   await page.getByLabel('Comentario (entre 4 y 600 caracteres)').fill('Respuesta de prueba');

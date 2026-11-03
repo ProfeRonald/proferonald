@@ -1,0 +1,64 @@
+@import './vendor/bootstrap.css';
+@import './vendor/font-awesome.css';
+@import './vendor/rubik.css';
+@import '../docs/assets/css/theme.css';
+[hidden] { display: none !important; }
+html { scroll-padding-top: 6rem; }
+
+.skip-link { position: fixed; top: -100px; left: 1rem; z-index: 2000; background: white; padding: 1rem; }
+.skip-link:focus { top: 0; }
+:focus-visible { outline: 3px solid #005fcc; outline-offset: 3px; }
+#view:focus { outline: none; }
+.post-image { width: 100%; height: auto; max-height: 550px; object-fit: contain; }
+.card .post-image { aspect-ratio: 16 / 9; object-fit: cover; }
+.badge-light { color: #263238; background: #edf2f5; }
+.mr-1 { margin-right: .25rem; }
+.form-group { margin-bottom: 1rem; }
+.video-player { width: 100%; aspect-ratio: 16 / 9; border: 0; }
+.pagination-controls { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin: 1rem 0 2rem; }
+.article-post { overflow-wrap: anywhere; }
+.article-post table { display: block; max-width: 100%; overflow-x: auto; }
+.comment { border-top: 1px solid #ddd; padding: 1rem 0; overflow-wrap: anywhere; }
+.comment.reply { margin-left: 1.5rem; }
+.comment-text { white-space: pre-wrap; }
+.math-block { display: block; max-width: 100%; overflow: auto; }
+.math-inline { display: inline-block; vertical-align: middle; max-width: 100%; }
+math-field[read-only] { border: 0; pointer-events: none; }
+.gallery-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+.gallery-item { background: white; border: 1px solid #ddd; }
+.gallery-item img { object-fit: cover; }
+.footer { margin-top: 3rem; }
+@media (max-width: 767px) { .navbar { position: static !important; } .site-content { margin-top: 0; padding-top: 1rem; } h1 { font-size: 2rem; } .comment.reply { margin-left: .7rem; } .navbar-links { margin-top: .5rem; } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+.navbar .nav-link { background:none; border:0; cursor:pointer; }
+.navbar-brand { max-width: 280px; }
+.navbar-brand img { width:28px; height:28px; }
+#editor, #app-status { max-width:1110px; margin:auto; padding:1rem; }
+#view > h1, #view > p { max-width:1110px; margin:1rem auto; }
+#search-form { font-size:.85rem; }
+.site-content > #search-form { max-width:1110px; margin:auto; padding:1rem; }
+.intro { height:250px; overflow:hidden; }
+.wrapintro { height:240px; overflow:hidden; }
+.intro h1 { margin-top:0; font-size:2.5rem; }
+.carousel-control-prev, .carousel-control-next { border:0; background:transparent; }
+.carousel-indicators li { background:transparent; }
+.carousel-indicators button { width:30px; height:3px; border:0; padding:0; background:#fff; opacity:.5; vertical-align:top; }
+.carousel-indicators button.active { opacity:1; }
+.listfeaturedtag .wrapthumbnail .post-image { height:100%; min-height:220px; object-fit:cover; }
+.listrecent .card-block { margin-bottom:1.5rem; }
+#comment-form { background:#eee; padding:1.5rem; border-radius:.25rem; }
+@media(max-width:767px) { .intro h1 { font-size:1.65rem; } .intro h2 { font-size:1rem; } .wrapintro { padding:1rem 1.5rem; } }
+
+.post-sharing { font-size:1.3rem; }
+.post-sharing a { margin-left:.7rem; color:#008bf0; }
+.post-sharing a[aria-label*="WhatsApp"] { color:#00a859; }
+#search-form .input-group { flex-wrap:wrap; gap:.25rem; }
+#search-text { flex-basis:100%; width:100%; }
+#clear-search { color:#555; }
+.navbar-nav > [data-admin] { display:flex; flex-wrap:wrap; }
+.carousel-indicators { bottom: 0; margin-bottom: 0; }
+.carousel-indicators li { height: 20px; }
+.carousel-indicators button { height: 20px; background: transparent; }
+.carousel-indicators button::after { content: ''; display: block; height: 3px; background: #fff; }
+.carousel-indicators li { text-indent: 0; border: 0; }

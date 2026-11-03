@@ -1,6 +1,7 @@
 import { JSDOM } from 'jsdom';
 import { contentTools, mediaHTML } from './content.js';
 import { postURL, dateInfo, safeURL, youtubeID } from './core.js';
+import { sidebarHTML } from './layout.js';
 import { site } from './config.js';
 export function renderPublicPost(template, id, post) {
   if (!post || post.activo !== 1) return null;
@@ -16,6 +17,9 @@ export function renderPublicPost(template, id, post) {
   const date = doc.createElement('time'); date.dateTime = dateInfo(post.fecha).iso; date.textContent = dateInfo(post.fecha).label;
   const media = doc.createElement('div'); media.innerHTML = mediaHTML(post.imagen, post.titulo);
   const body = doc.createElement('div'); body.className = 'article-post'; body.innerHTML = tools.sanitize(String(post.contenido).replace(/\n/g, '<br>'));
-  main.append(h1, date, media, body);
+  h1.className = 'posttitle';
+  main.innerHTML = '<div class="container"><section class="recent-posts row"><div class="col-sm-8 muro-izq"><article><div class="mainheading"></div></article></div>'+sidebarHTML()+'</section></div>';
+  main.querySelector('.mainheading').append(h1);
+  main.querySelector('article').append(date, media, body);
   const result = dom.serialize(); dom.window.close(); return result;
 }

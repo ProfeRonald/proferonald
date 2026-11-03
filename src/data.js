@@ -58,3 +58,9 @@ export function profile(uid) {
   if (!profiles.has(uid)) profiles.set(uid, get(ref(db, `perfilesPublicos/${uid}`)).then(s => s.val() || { displayName: 'Usuario' }).catch(e => { profiles.delete(uid); throw e; }));
   return profiles.get(uid);
 }
+
+export async function neighbors(id) {
+  const before = query(ref(db,'publicaciones'), orderByKey(), endBefore(id), limitToLast(1));
+  const after = query(ref(db,'publicaciones'), orderByKey(), startAfter(id), limitToFirst(1));
+  return Promise.all([before,after].map(async q => rows(await get(q))[0] || null));
+}

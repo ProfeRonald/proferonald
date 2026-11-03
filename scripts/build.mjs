@@ -14,6 +14,7 @@ for (const name of await readdir(dist)) {
   await rm(target, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 });
 }
 await mkdir('dist/assets/build', { recursive: true });
+await cp('src/verse-frame.js','dist/assets/verse-frame.js');
 // Explicit allowlist: never publish legacy JS, compiled manager, maps or archivos2.
 for (const dir of ['images', 'htmls', 'css']) await cp(`docs/assets/${dir}`, `dist/assets/${dir}`, { recursive: true });
 for (const name of await readdir('docs/assets/images')) {
@@ -21,13 +22,13 @@ for (const name of await readdir('docs/assets/images')) {
   await sharp(`docs/assets/images/${name}`).rotate().resize({ width: 1280, withoutEnlargement: true }).webp({ quality: 82 }).toFile(`dist/assets/images/${name.replace(/\.[^.]+$/, '')}.webp`);
 }
 for (const file of ['word-latex.png', 'subir-img.png']) await cp(`docs/${file}`, `dist/${file}`);
-const result = await build({ entryPoints: { app: 'src/app.js', manager: 'src/manager-entry.js' }, outdir: 'dist/assets/build', entryNames: '[name]-[hash]', chunkNames: 'chunk-[hash]', assetNames: '[name]-[hash]', bundle: true, splitting: true, format: 'esm', minify: true, target: ['es2022'], metafile: true });
+const result = await build({ entryPoints: { app: 'src/app.js', manager: 'src/manager-entry.js' }, outdir: 'dist/assets/build', entryNames: '[name]-[hash]', chunkNames: 'chunk-[hash]', assetNames: '[name]-[hash]', loader: { '.woff2':'file', '.ttf':'file' }, bundle: true, splitting: true, format: 'esm', minify: true, target: ['es2022'], metafile: true });
 const entry = name => Object.entries(result.metafile.outputs).find(([, value]) => value.entryPoint === `src/${name}.js`);
-const [appJS, app] = entry('app'); const [managerJS] = entry('manager-entry');
+const [appJS, app] = entry('app'); const [managerJS, manager] = entry('manager-entry');
 const css = '/' + app.cssBundle.replaceAll('\\', '/').replace(/^dist\//, '');
 const values = { '{{APP_JS}}': '/' + appJS.replace(/^dist\//, ''), '{{MANAGER_JS}}': '/' + managerJS.replace(/^dist\//, ''), '{{APP_CSS}}': css };
 for (const [source, destination] of [['src/index.html', 'dist/index.html'], ['src/manager.html', 'dist/archivos/index.html']]) {
-  let html = await readFile(source, 'utf8'); for (const [key, value] of Object.entries(values)) html = html.replaceAll(key, value);
+  let html = await readFile(source, 'utf8'); for (const [key, value] of Object.entries(values)) html = html.replaceAll(key, source.includes('manager.html') && key === '{{APP_CSS}}' ? '/' + manager.cssBundle.replaceAll('\\', '/').replace(/^dist\//, '') : value);
   await mkdir(path.dirname(destination), { recursive: true }); await writeFile(destination, html);
 }
 const manifest = JSON.parse(await readFile('package.json', 'utf8'));
