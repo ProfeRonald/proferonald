@@ -66,16 +66,14 @@
   <noscript><p>Activa JavaScript para buscar, iniciar sesión y comentar. Las publicaciones estáticas están disponibles desde el mapa del sitio.</p><a href="/sitemap.xml">Mapa del sitio</a></noscript>
   <section id="editor" aria-labelledby="editor-title" hidden>
     <h1 id="editor-title">Nueva publicación</h1>
-    <form id="article-form">
+    <form id="article-form" class="news-form">
       <div class="form-group"><label for="article-title">Título</label><input class="form-control" id="article-title" name="titulo" required maxlength="180"></div>
-      <div class="form-group"><label for="article-content">Contenido (HTML básico y fórmulas entre $ o $$)</label><textarea class="form-control" id="article-content" name="contenido" required maxlength="100000" rows="14"></textarea></div>
-      <div class="form-group"><label for="article-media">Imagen HTTPS o video de YouTube</label><input class="form-control" id="article-media" name="mediaURL" type="url" maxlength="2048"><input name="imagen" type="hidden"><p id="private-photo-note" class="small" hidden>Imagen subida en privado. Se hará pública al publicar el artículo.</p></div>
-      <div class="form-group"><label for="photo-upload">Subir imagen (JPEG, PNG o WebP; máximo 5 MB)</label><input type="file" id="photo-upload" accept="image/jpeg,image/png,image/webp" class="form-control-file"><button type="button" data-action="gallery" class="btn btn-outline-primary mt-2">Abrir galería pública</button><p class="small">Las imágenes nuevas permanecen privadas mientras sean borradores. La galería contiene imágenes ya públicas.</p></div>
+      <div class="form-group"><label for="article-content">Contenido (HTML básico y fórmulas entre $ o $$)</label><textarea class="form-control" id="article-content" name="contenido" maxlength="100000" rows="14"></textarea></div>
+      <fieldset class="news-cover-fieldset"><legend>Portada y multimedia</legend><div id="news-cover-preview" class="news-cover-preview"><p>Sin imagen de portada</p></div><div class="news-image-tools"><button type="button" class="btn btn-outline-primary" id="news-cover-open">Elegir imagen de portada</button><button type="button" class="btn btn-outline-secondary" id="news-cover-edit" disabled>Editar portada</button><button type="button" class="btn btn-link" id="news-cover-remove" disabled>Quitar portada</button></div><label for="article-media">Imagen HTTPS o video de YouTube</label><input class="form-control" id="article-media" name="mediaURL" type="url" maxlength="2048"><input name="imagen" type="hidden"><p id="private-photo-note" class="small" hidden>Imagen guardada en privado. Se hará pública al publicar el artículo.</p><p class="small">Las imágenes nuevas y sus ediciones permanecen privadas mientras sean borradores. La galería contiene imágenes ya públicas.</p></fieldset>
       <div class="form-group"><label for="article-categories">Categorías separadas por comas</label><input class="form-control" id="article-categories" name="categorias" maxlength="500"></div>
       <div class="form-check mb-3"><input type="checkbox" class="form-check-input" name="activo" id="article-active"><label for="article-active" class="form-check-label">Publicar (desmarcado guarda un borrador privado)</label></div>
       <button class="btn btn-primary" type="submit" id="save-article">Guardar</button><button class="btn btn-link" type="button" data-action="cancel-edit">Cancelar</button>
     </form>
-    <section id="gallery" hidden aria-labelledby="gallery-title"><h2 id="gallery-title">Galería de imágenes</h2><button type="button" data-action="close-gallery" class="btn btn-secondary">Cerrar galería</button><div id="gallery-items" class="gallery-grid my-3"></div><button type="button" id="gallery-more" class="btn btn-outline-primary" hidden>Cargar más imágenes</button></section>
   </section>
 </div>
 <footer class="footer">

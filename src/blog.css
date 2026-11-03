@@ -2,6 +2,7 @@
 @import './vendor/font-awesome.css';
 @import './vendor/rubik.css';
 @import '../docs/assets/css/theme.css';
+@import './news-editor.css';
 [hidden] { display: none !important; }
 html { scroll-padding-top: 6rem; }
 .mediumnavigation.fixed-top { position: fixed; top: 0; right: 0; left: 0; }

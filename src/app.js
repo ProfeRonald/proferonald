@@ -6,7 +6,8 @@ import { escapeHTML as esc, decodePID, postURL, dateInfo, categories, matchesPos
 import { site, mathliveFonts } from './config.js';
 import { contentTools, mediaHTML } from './content.js';
 import { $, status, report, busy, button, fieldError } from './ui.js';
-import { listFiles, publicPhotoURL, uploadFile, draftPhotoBlob, publishDraftPhoto, deleteFile } from './files.js';
+import { draftPhotoBlob, publishDraftPhoto, deleteFile } from './files.js';
+import { prepareArticleMedia } from './article-media.js';
 const content = contentTools(window);
 const searchForm = document.createElement('template'); searchForm.innerHTML = "  <form id=\"search-form\" role=\"search\" class=\"mb-4\">\n    <label for=\"search-text\">Buscar publicaciones</label>\n    <div class=\"input-group\"><input id=\"search-text\" name=\"q\" type=\"search\" class=\"form-control\" maxlength=\"160\"><div class=\"input-group-append\"><button type=\"submit\" class=\"btn btn-primary\">Buscar</button><button type=\"button\" id=\"clear-search\" class=\"btn btn-outline-secondary\">Limpiar</button></div></div>\n  </form>";
 const search = searchForm.content.firstElementChild;
@@ -17,7 +18,7 @@ let cursors = ['']; let pageIndex = 0; let currentPage = [];
 let fullCatalog; let editing = null; let dirty = false; let replying = '';
 let commentVersion = 0; let lastURL = location.href;
 let previewPhotoURL = '';
-let galleryToken; let galleryItems = []; let galleryVersion = 0;
+let newsEditor; let editorLoading; let editorVersion = 0; const inlinePreviewURLs = [];
 const profileCache = new Map();
 const pageURL = id => postURL(id, '', location.origin);
 function metadata(post) {
@@ -54,7 +55,7 @@ function syncAuth() {
   document.querySelectorAll('[data-owner]').forEach(el => { el.hidden = !(session.admin || el.dataset.owner === session.user?.uid); });
   if (!session.admin) {
     if (!$('#editor').hidden) { $('#editor').hidden = true; $('#view').hidden = false; $('#view').innerHTML = '<h1>Acceso restringido</h1><p>La sesión administradora dejó de estar disponible.</p>'; }
-    $('#gallery').hidden = true;
+    newsEditor?.close();
   }
 }
 let verseHTML = ''; let verseFrame;
@@ -127,7 +128,8 @@ async function showPost(id, version, preview = false) {
   currentPost = post; replying = ''; metadata(post);
   const date = dateInfo(post.fecha);
   $('#view').innerHTML = `<div class="container"><section class="recent-posts row"><div class="col-sm-8 muro-izq"><article><div class="mainheading"><div class="after-post-tags">${categoryLinks(post.categorias)}</div><h1 class="posttitle">${esc(post.titulo)}</h1></div><p><time datetime="${date.iso}">${esc(date.label)}</time> ${post.activo !== 1 ? '<strong>Borrador privado</strong>' : ''}</p><div data-admin hidden>${button('Editar', 'edit')} ${button('Eliminar publicación', 'delete-post')}</div><div class="my-3">${mediaHTML(post.imagen, post.titulo)}</div><div class="article-post capital-pr" id="article-body"></div><div class="my-4 text-right post-sharing"><span><i class="fa fa-share-alt" aria-hidden="true"></i> Comparte:</span> <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postURL(post.id))}" target="_blank" rel="noopener noreferrer" aria-label="Compartir en Facebook"><i class="fa fa-facebook" aria-hidden="true"></i></a> <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(post.titulo)}&amp;url=${encodeURIComponent(postURL(post.id))}" target="_blank" rel="noopener noreferrer" aria-label="Compartir en Twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a> <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(postURL(post.id))}" target="_blank" rel="noopener noreferrer" aria-label="Compartir en LinkedIn"><i class="fa fa-linkedin" aria-hidden="true"></i></a> <a href="https://api.whatsapp.com/send?text=${encodeURIComponent(post.titulo+' '+postURL(post.id))}" target="_blank" rel="noopener noreferrer" aria-label="Compartir en WhatsApp"><i class="fa fa-whatsapp" aria-hidden="true"></i></a> <button type="button" class="btn btn-link" data-action="copy-post" aria-label="Copiar enlace"><i class="fa fa-link" aria-hidden="true"></i></button></div><nav id="post-navigation" class="row PageNavigation mt-4 prevnextlinks" aria-label="Otras publicaciones"></nav></article><section aria-labelledby="comments-title"><h2 id="comments-title">Comentarios</h2><p>Se muestran los 20 comentarios más recientes.</p><p id="comment-login">Inicia sesión con Google para comentar.</p><form id="comment-form" hidden><label for="comment-text">Comentario (entre 4 y 600 caracteres)</label><p id="reply-label" role="status"></p><textarea id="comment-text" class="form-control" minlength="4" maxlength="600" required rows="4"></textarea><button class="btn btn-primary mt-2" type="submit">Publicar comentario</button> <button type="button" class="btn btn-link" data-action="cancel-reply">Cancelar respuesta</button></form><div id="comments" aria-live="polite"></div></section></div>${sidebarHTML()}</section></div>`;
-  content.rich($('#article-body'), post.contenido); mathIfNeeded($('#article-body'));
+  content.rich($('#article-body'), post.contenido, { privateImages: post.activo !== 1 && session.admin }); mathIfNeeded($('#article-body'));
+  if (post.activo !== 1 && session.admin) hydratePostImages($('#article-body'), version);
   if (draftImagePath(post.imagen) && session.admin) {
     const blob = await draftPhotoBlob(post.imagen);
     if (version !== routeVersion || !session.admin) return;
@@ -140,6 +142,15 @@ async function showPost(id, version, preview = false) {
   loadVerse();
   if (post.activo === 1) stopComments = data.watchComments(id, comments => renderComments(comments, version), e => { if (version === routeVersion) report(e, 'comentarios'); });
   else $('#comments').textContent = 'Los comentarios se habilitan al publicar.';
+}
+async function hydratePostImages(root, version) {
+  await Promise.all([...root.querySelectorAll('img[data-private-image]')].map(async image => {
+    try {
+      const blob = await draftPhotoBlob(image.getAttribute('data-private-image'));
+      if (version !== routeVersion || !session.admin || !image.isConnected) return;
+      const url = URL.createObjectURL(blob); inlinePreviewURLs.push(url); image.src = url;
+    } catch (error) { if (version === routeVersion) report(error,'imagen-privada'); }
+  }));
 }
 async function renderComments(comments, version) {
   const commentRequest = ++commentVersion;
@@ -176,7 +187,8 @@ async function staticPage(name, version) {
 }
 async function route({ reset = true, focus = false } = {}) {
   lastURL = location.href;
-  clearInterval(carouselTimer);
+  clearInterval(carouselTimer); newsEditor?.close(); editorVersion++;
+  for (const url of inlinePreviewURLs.splice(0)) URL.revokeObjectURL(url);
   search.hidden = true; document.querySelector('.site-content').prepend(search);
   const version = ++routeVersion; stopComments(); stopComments = () => {}; currentPost = null;
   if (previewPhotoURL) { URL.revokeObjectURL(previewPhotoURL); previewPhotoURL = ''; }
@@ -207,8 +219,9 @@ function navigate(url) {
   if (hasUnsaved() && !confirm('Hay cambios sin guardar. ¿Descartarlos y continuar?')) return;
   dirty = false; history.pushState(null, '', url); route({ focus: true });
 }
-function editor(post = null) {
+async function editor(post = null) {
   if (!session.admin) return;
+  const version = ++editorVersion; newsEditor?.close(); clearInterval(carouselTimer);
   editing = post; stopComments(); $('#view').hidden = true; $('#editor').hidden = false;
   const form = $('#article-form'); form.reset();
   for (const name of ['titulo', 'contenido', 'imagen', 'categorias']) form.elements[name].value = post?.[name] || '';
@@ -216,23 +229,14 @@ function editor(post = null) {
   $('#private-photo-note').hidden = !draftImagePath(post?.imagen);
   form.elements.activo.checked = post?.activo === 1;
   $('#editor-title').textContent = post ? 'Editar publicación' : 'Nueva publicación';
+  editorLoading ??= import('./news-editor.js').then(({ createNewsEditor }) => {
+    newsEditor = createNewsEditor({ content, canEdit: () => session.admin && !$('#editor').hidden, onChange: () => { dirty = true; }, status, math: mathIfNeeded });
+    return newsEditor;
+  }).catch(error => { editorLoading = null; throw error; });
+  const composer = await editorLoading;
+  if (version !== editorVersion || !session.admin || $('#editor').hidden) return;
+  composer.setHTML(form.elements.contenido.value);
   dirty = false; form.elements.titulo.focus();
-}
-async function gallery(append = false) {
-  const version = ++galleryVersion;
-  const result = await listFiles('fotos', append ? galleryToken : undefined);
-  if (version !== galleryVersion || !session.admin) return;
-  galleryToken = result.nextPageToken;
-  if (!append) { galleryItems = []; $('#gallery-items').replaceChildren(); }
-  const urls = await Promise.all(result.items.map(item => publicPhotoURL(item)));
-  if (version !== galleryVersion || !session.admin) return;
-  urls.forEach((url, index) => {
-    const n = galleryItems.push(url) - 1; const b = document.createElement('button');
-    b.type = 'button'; b.className = 'gallery-item'; b.dataset.photo = n;
-    b.innerHTML = `<img src="${esc(url)}" alt="Seleccionar ${esc(result.items[index].name)}" loading="lazy" width="140" height="100">`;
-    $('#gallery-items').append(b);
-  });
-  $('#gallery-more').hidden = !galleryToken; $('#gallery').hidden = false;
 }
 document.addEventListener('click', event => {
   const link = event.target.closest('a[data-route]');
@@ -241,8 +245,6 @@ document.addEventListener('click', event => {
   if (video) {
     const iframe = document.createElement('iframe'); iframe.title = 'Video de YouTube'; iframe.src = `https://www.youtube-nocookie.com/embed/${video.dataset.video}?autoplay=1`; iframe.allow = 'autoplay; encrypted-media; picture-in-picture'; iframe.allowFullscreen = true; iframe.className = 'video-player'; video.replaceWith(iframe); return;
   }
-  const photo = event.target.closest('[data-photo]');
-  if (photo) { $('#article-form').elements.imagen.value = galleryItems[photo.dataset.photo]; $('#article-form').elements.mediaURL.value = galleryItems[photo.dataset.photo]; $('#private-photo-note').hidden = true; dirty = true; $('#gallery').hidden = true; return; }
   const target = event.target.closest('[data-action]'); if (!target) return;
   busy(target, async () => {
     const action = target.dataset.action;
@@ -256,7 +258,10 @@ document.addEventListener('click', event => {
       return;
     }
     if (action === 'retry') return route({ reset: false });
-    if (action === 'new') return editor();
+    if (action === 'new') {
+      $('#navbarsWow').classList.remove('show'); document.querySelector('[data-action="toggle-nav"]').setAttribute('aria-expanded','false');
+      return editor();
+    }
     if (action === 'edit') return editor(currentPost);
     if (action === 'cancel-edit') { if (!dirty || confirm('¿Descartar los cambios sin guardar?')) { dirty = false; return route({ reset: false }); } }
     if (action === 'older' || action === 'newer') { pageIndex += action === 'older' ? 1 : -1; return route({ reset: false }); }
@@ -269,8 +274,6 @@ document.addEventListener('click', event => {
     if (action === 'cancel-reply') { replying = ''; if ($('#reply-label')) $('#reply-label').textContent = ''; }
     if (action === 'delete-comment' && confirm('¿Eliminar este comentario y sus respuestas?')) await data.deleteComment(currentPost.id, target.dataset.comment, target.dataset.reply);
     if (action === 'delete-post' && session.admin && confirm('¿Eliminar esta publicación y todos sus comentarios?')) { await data.deleteArticle(currentPost.id); fullCatalog = null; navigate('/'); status('Publicación eliminada.'); }
-    if (action === 'gallery') await gallery();
-    if (action === 'close-gallery') $('#gallery').hidden = true;
   }).catch(e => { if (e.name !== 'AbortError') report(e, 'accion'); });
 });
 $('#search-form').addEventListener('submit', event => { event.preventDefault(); navigate('/?q=' + encodeURIComponent($('#search-text').value.trim())); });
@@ -280,27 +283,30 @@ $('#login').addEventListener('click', event => {
   busy(event.currentTarget, () => session.user ? logout() : login()).catch(e => report(e, 'sesion'));
 });
 $('#article-form').addEventListener('input', () => { dirty = true; });
-$('#article-media').addEventListener('input', event => { $('#article-form').elements.imagen.value = event.target.value; $('#private-photo-note').hidden = true; });
 $('#article-form').addEventListener('submit', event => {
   event.preventDefault();
   busy($('#save-article'), async () => {
     if (!session.admin) throw new Error('Permiso requerido');
+    if (!newsEditor || newsEditor.busy) throw fieldError(new Error('Termina de preparar la imagen antes de guardar la noticia.'));
     const form = event.target; const raw = Object.fromEntries(new FormData(form));
+    raw.contenido = newsEditor.getHTML();
     raw.activo = form.elements.activo.checked;
     // Keep the submitted payload visible until the single atomic update succeeds.
     let value;
     try { value = (await import('./core.js')).validateArticle(raw); } catch (e) { throw fieldError(e); }
-    value.contenido = content.sanitize(value.contenido);
+    value.contenido = content.sanitize(value.contenido, { privateImages: true });
     if (!content.text(value.contenido).trim()) throw fieldError(new Error('El contenido no puede estar vacío.'));
-    let staged;
-    let id;
+    let prepared; let id; const version = editorVersion;
+    newsEditor.setSaving(true);
     try {
-      if (value.activo && draftImagePath(value.imagen)) { staged = await publishDraftPhoto(value.imagen); value.imagen = staged.url; }
-      id = await data.saveArticle(value, editing?.id, editing?.fecha);
+      prepared = await prepareArticleMedia(value, { document, publish: publishDraftPhoto, remove: deleteFile });
+      if (!session.admin) throw fieldError(new Error('La sesión administradora caducó. Inicia sesión para guardar.'));
+      id = await data.saveArticle(prepared.value, editing?.id, editing?.fecha);
     } catch (error) {
-      if (staged) await deleteFile(staged.item).catch(e => report(e, 'limpieza-imagen'));
+      if (prepared) await prepared.rollback().catch(e => report(e, 'limpieza-imagen'));
       throw error;
-    }
+    } finally { newsEditor.setSaving(false); }
+    if (version !== editorVersion) { status('Publicación guardada.'); return; }
     dirty = false; fullCatalog = null;
     navigate(pageURL(id) + (value.activo ? '' : '?preview=1')); status('Publicación guardada.');
   }).catch(e => report(e, 'guardado'));
@@ -317,17 +323,6 @@ document.addEventListener('submit', event => {
     replying = ''; $('#reply-label').textContent = ''; status('Comentario publicado.');
   }).catch(e => report(e, 'comentario'));
 });
-$('#photo-upload').addEventListener('change', event => {
-  const input = event.target; const file = input.files[0]; if (!file) return;
-  busy($('#save-article'), async () => {
-    if (!session.admin) throw new Error('Permiso requerido');
-    const item = await uploadFile(file, 'imagenes', percent => status(`Subiendo imagen: ${percent}%`));
-    $('#article-form').elements.imagen.value = 'private:' + item.fullPath;
-    $('#article-form').elements.mediaURL.value = ''; $('#private-photo-note').hidden = false;
-    dirty = true; input.value = ''; status('Imagen guardada en privado. Se hará pública al publicar el artículo.');
-  }).catch(e => report(e, 'imagen'));
-});
-$('#gallery-more').addEventListener('click', event => busy(event.currentTarget, () => gallery(true)).catch(e => report(e, 'galeria')));
 const hasUnsaved = () => dirty || !!$('#comment-text')?.value.trim();
 window.addEventListener('popstate', () => {
   if (hasUnsaved() && !confirm('¿Descartar el texto sin guardar?')) { history.pushState(null, '', lastURL); return; }

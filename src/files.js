@@ -33,7 +33,10 @@ export async function uploadFile(file, prefix, progress = () => {}) {
 export const deleteFile = item => deleteObject(item);
 export async function draftPhotoBlob(value) {
   const path = draftImagePath(value); if (!path) throw new Error('Imagen privada no válida.');
-  return getBlob(ref(storage, path), 5 * 1024 * 1024);
+  const blob = await getBlob(ref(storage, path), 5 * 1024 * 1024);
+  // These UUID paths are created exclusively by our WebP encoder. Some Storage
+  // transports return an empty MIME type, even when the object metadata is set.
+  return new Blob([blob], { type: 'image/webp' });
 }
 export async function publishDraftPhoto(value) {
   const blob = await draftPhotoBlob(value);

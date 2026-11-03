@@ -23,7 +23,7 @@ export async function article(id, preview = false) {
 }
 export async function saveArticle(input, id = '', fecha) {
   const value = { ...validateArticle(input), fecha: fecha || serverTimestamp(), actualizado: serverTimestamp() };
-  if (value.activo === 1 && draftImagePath(value.imagen)) throw new Error('La imagen privada debe publicarse antes de guardar el artículo activo.');
+  if (value.activo === 1 && (draftImagePath(value.imagen) || /<img\b[^>]*\bdata-private-image\s*=/i.test(value.contenido))) throw new Error('La imagen privada debe publicarse antes de guardar el artículo activo.');
   const key = id || push(ref(db, 'articulos')).key;
   await update(ref(db), publicationUpdates(key, value));
   return key;

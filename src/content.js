@@ -3,18 +3,27 @@ import { safeURL, youtubeID, escapeHTML, draftImagePath } from './core.js';
 export const articleTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'blockquote', 'ul', 'ol', 'li', 'h2', 'h3', 'h4', 'pre', 'code', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div', 'sup', 'sub'];
 export function contentTools(win) {
   const purify = createDOMPurify(win);
-  function sanitize(html) {
-    const clean = purify.sanitize(String(html ?? ''), { ALLOWED_TAGS: articleTags, ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'colspan', 'rowspan'], ALLOW_DATA_ATTR: false });
+  function sanitize(html, { privateImages = false } = {}) {
+    const input = win.document.createElement('template'); input.innerHTML = String(html ?? '');
+    input.content.querySelectorAll('img').forEach(img => {
+      if (draftImagePath(img.getAttribute('src'))) { img.setAttribute('data-private-image', img.getAttribute('src')); img.removeAttribute('src'); }
+    });
+    const clean = purify.sanitize(input.innerHTML, { ALLOWED_TAGS: articleTags, ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'width', 'colspan', 'rowspan', 'data-private-image'], ADD_URI_SAFE_ATTR: ['data-private-image'], ALLOW_DATA_ATTR: false });
     const template = win.document.createElement('template');
     template.innerHTML = clean;
+    template.content.querySelectorAll('[data-private-image]:not(img)').forEach(element => element.removeAttribute('data-private-image'));
     template.content.querySelectorAll('a').forEach(a => {
       const href = safeURL(a.getAttribute('href'));
       if (href) { a.href = href; a.rel = 'noopener noreferrer'; } else a.removeAttribute('href');
     });
     template.content.querySelectorAll('img').forEach(img => {
+      const privateImage = img.getAttribute('data-private-image');
       const src = safeURL(img.getAttribute('src'), { image: true });
-      if (!src) img.remove();
-      else { img.src = src; img.loading = 'lazy'; img.decoding = 'async'; img.className = 'img-fluid'; }
+      if (privateImages && draftImagePath(privateImage)) { img.removeAttribute('src'); }
+      else { img.removeAttribute('data-private-image'); if (!src) { img.remove(); return; } img.src = src; }
+      const width = Number(img.getAttribute('width'));
+      if (Number.isInteger(width) && width >= 1 && width <= 1920) img.width = width; else img.removeAttribute('width');
+      img.loading = 'lazy'; img.decoding = 'async'; img.className = 'img-fluid';
     });
     return template.innerHTML;
   }
@@ -39,7 +48,7 @@ export function contentTools(win) {
       if (index) { fragment.append(node.textContent.slice(index)); node.replaceWith(fragment); }
     }
   }
-  function rich(element, html) { element.innerHTML = sanitize(String(html).replace(/\n/g, '<br>')); math(element); }
+  function rich(element, html, options) { element.innerHTML = sanitize(String(html).replace(/\n/g, '<br>'), options); math(element); }
   function plain(element, value) {
     element.textContent = value;
     const pattern = /https?:\/\/[^\s<>]+/g;

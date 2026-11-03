@@ -1,9 +1,15 @@
 import { test, expect } from '@playwright/test';
 import { encodePID } from '../../src/core.js';
 import { readFile } from 'node:fs/promises';
+import sharp from 'sharp';
 test.beforeEach(async ({page}) => {
   await page.route('https://dailyverses.net/get/verse.js?*', route => route.fulfill({contentType:'text/javascript',body:'document.querySelector("#dailyVersesWrapper").innerHTML = "<b>Versículo de prueba</b>";'}));
 });
+async function sourceHTML(page, value) {
+  const source = page.locator('#article-content');
+  if (!await source.isVisible()) await page.getByRole('button', {name:'Editar HTML',exact:true}).click();
+  await source.fill(value);
+}
 async function signIn(page, email, selector = '#login') {
   const popupPromise = page.waitForEvent('popup');
   await page.locator(selector).click();
@@ -76,7 +82,7 @@ test('administrator creates, edits and withdraws a post; failed save preserves t
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
   await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
   await page.getByLabel('Título', { exact: true }).fill('Publicación de prueba');
-  await page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)').fill('<p>Contenido seguro $x=1$</p><script>evil()</script>');
+  await sourceHTML(page, '<p>Contenido seguro $x=1$</p><script>evil()</script>');
   await page.getByLabel('Categorías separadas por comas').fill('Matemática');
   await page.getByLabel('Publicar (desmarcado guarda un borrador privado)').check();
   await page.getByRole('button', { name: 'Guardar', exact: true }).click();
@@ -85,11 +91,11 @@ test('administrator creates, edits and withdraws a post; failed save preserves t
   await expect(page.locator('math-field')).toHaveCount(1);
   await expect.poll(() => page.evaluate(() => document.fonts.check('16px KaTeX_Main'))).toBe(true);
   await page.getByRole('button', { name: 'Editar', exact: true }).click();
-  await page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)').fill('<script>evil()</script>');
+  await sourceHTML(page, '<script>evil()</script>');
   await page.getByRole('button', { name: 'Guardar', exact: true }).click();
   await expect(page.getByText('El contenido no puede estar vacío.')).toBeVisible();
   await expect(page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)')).toHaveValue('<script>evil()</script>');
-  await page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)').fill('<p>Contenido actualizado</p>');
+  await sourceHTML(page, '<p>Contenido actualizado</p>');
   await page.getByLabel('Publicar (desmarcado guarda un borrador privado)').uncheck();
   await page.getByRole('button', { name: 'Guardar', exact: true }).click();
   await expect(page.getByText('Borrador privado', { exact: true })).toBeVisible();
@@ -134,9 +140,13 @@ test('new draft images stay private until the article is published', async ({ pa
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
   await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
   await page.getByLabel('Título', { exact: true }).fill('Borrador con imagen privada');
-  await page.getByLabel('Contenido (HTML básico y fórmulas entre $ o $$)').fill('Contenido reservado hasta publicar.');
+  await sourceHTML(page, 'Contenido reservado hasta publicar.');
+  await page.getByRole('button',{name:'Elegir imagen de portada',exact:true}).click();
   await page.locator('#photo-upload').setInputFiles({ name: 'privada.png', mimeType: 'image/png', buffer: await readFile('docs/assets/images/logo.png') });
-  await expect(page.getByText('Imagen guardada en privado. Se hará pública al publicar el artículo.')).toBeVisible();
+  await expect(page.locator('#image-workspace')).toBeVisible();
+  await page.getByRole('button',{name:'Usar imagen',exact:true}).click();
+  await expect(page.locator('#news-image-dialog')).not.toBeVisible();
+  await expect(page.locator('#private-photo-note')).toBeVisible();
   await page.getByRole('button', { name: 'Guardar', exact: true }).click();
   await expect(page.getByText('Borrador privado', { exact: true })).toBeVisible();
   await expect(page.getByRole('img', { name: 'Imagen privada del borrador', exact: true })).toBeVisible();
@@ -146,4 +156,89 @@ test('new draft images stay private until the article is published', async ({ pa
   await expect(page.getByRole('heading', { name: 'Borrador con imagen privada', exact: true })).toBeVisible();
   await expect(page.getByText('Borrador privado', { exact: true })).toHaveCount(0);
   await expect(page.getByRole('img', { name: 'Borrador con imagen privada', exact: true })).toBeVisible();
+});
+
+test('visual editor crops a private inline image, reopens it and publishes the actual cropped pixels', async ({ page }) => {
+  test.setTimeout(60000);
+  await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
+  await page.getByRole('button',{name:'Nuevo',exact:true}).click();
+  await page.getByLabel('Título',{exact:true}).fill('Noticia con editor visual');
+  const visual = page.getByRole('textbox',{name:'Contenido de la noticia',exact:true});
+  await visual.fill('Texto de la noticia'); await visual.press('ControlOrMeta+a');
+  await page.getByRole('button',{name:'Negrita',exact:true}).click();
+  await expect(visual.locator('strong')).toHaveText('Texto de la noticia');
+  await visual.press('ArrowRight'); await visual.press('Enter');
+  await page.getByRole('button',{name:'Fórmula',exact:true}).click();
+  await page.getByLabel('Fórmula LaTeX').fill('x^2'); await page.getByRole('button',{name:'Insertar fórmula',exact:true}).click();
+  await page.getByRole('button',{name:'Insertar imagen',exact:true}).click();
+  const fixture = await sharp({create:{width:300,height:200,channels:3,background:'#ff0000'}}).composite([{input:await sharp({create:{width:150,height:200,channels:3,background:'#0000ff'}}).png().toBuffer(),left:150,top:0}]).png().toBuffer();
+  await page.locator('#photo-upload').setInputFiles({name:'dos-colores.png',mimeType:'image/png',buffer:fixture});
+  await expect(page.locator('#image-output-size')).toHaveText('Salida: 300 × 200 px');
+  await page.getByLabel('X (px)',{exact:true}).fill('150'); await page.getByLabel('X (px)',{exact:true}).press('Tab');
+  await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 200 px');
+  await page.getByLabel('Descripción de la imagen (texto alternativo)').fill('Mitad azul');
+  await page.getByRole('button',{name:'Usar imagen',exact:true}).click();
+  await expect(page.locator('#news-image-dialog')).not.toBeVisible();
+  await expect(visual.getByRole('img',{name:'Mitad azul',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Vista previa',exact:true}).click();
+  await expect(page.locator('#news-preview-body strong').first()).toHaveText('Texto de la noticia');
+  await expect(page.locator('#news-preview-body math-field')).toHaveCount(1);
+  await expect(page.locator('#news-preview-body img')).toHaveAttribute('src',/^blob:/);
+  await page.getByRole('button',{name:'Cerrar vista previa',exact:true}).click();
+  await page.getByRole('button',{name:'Guardar',exact:true}).click();
+  await expect(page.getByText('Borrador privado',{exact:true})).toBeVisible();
+  const image = page.locator('#article-body img'); await expect(image).toHaveAttribute('src',/^blob:/);
+  const privateRef = await image.getAttribute('data-private-image');
+  const denied = await page.request.get('http://127.0.0.1:9199/v0/b/demo-proferonald.appspot.com/o/'+encodeURIComponent(privateRef.slice(8))+'?alt=media'); expect([401,403]).toContain(denied.status());
+  await page.getByRole('button',{name:'Editar',exact:true}).click();
+  await expect(visual.getByRole('img',{name:'Mitad azul',exact:true})).toBeVisible();
+  await expect.poll(() => visual.getByRole('img',{name:'Mitad azul',exact:true}).evaluate(image => image.complete && image.naturalWidth > 0)).toBe(true);
+  await visual.getByRole('img',{name:'Mitad azul',exact:true}).dblclick();
+  await expect(page.locator('#news-image-dialog')).toBeVisible();
+  await expect(page.locator('#image-workspace')).toBeVisible();
+  await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 200 px');
+  await page.getByRole('button',{name:'Girar 90 grados a la derecha',exact:true}).click();
+  await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 113 px');
+  await page.getByRole('button',{name:'Restablecer imagen',exact:true}).click();
+  await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 200 px');
+  await page.getByRole('button',{name:'Cancelar',exact:true}).last().click();
+  await page.getByLabel('Publicar (desmarcado guarda un borrador privado)').check();
+  await page.getByRole('button',{name:'Guardar',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Noticia con editor visual',exact:true})).toBeVisible();
+  await expect(page.locator('#article-body img')).toHaveAttribute('src',/^http:\/\/127\.0\.0\.1:9199\//);
+  expect(await page.locator('#article-body img').getAttribute('data-private-image')).toBeNull();
+  const response = await page.request.get(await page.locator('#article-body img').getAttribute('src')); expect(response.ok()).toBe(true);
+  const published = await response.body(); const metadata = await sharp(published).metadata(); expect(metadata.width).toBe(150); expect(metadata.height).toBe(200);
+  const {data} = await sharp(published).removeAlpha().raw().toBuffer({resolveWithObject:true}); expect(data[2]).toBeGreaterThan(220); expect(data[0]).toBeLessThan(30);
+});
+
+test('image dialog handles invalid files, cancel and mobile cropping without changing the article', async ({ page }) => {
+  await page.setViewportSize({width:375,height:812});
+  await page.goto('/?emulators=1');
+  await page.getByRole('button',{name:'Abrir menú',exact:true}).click();
+  await signIn(page,'admin@example.test');
+  await page.getByRole('button',{name:'Nuevo',exact:true}).click();
+  // Close the navigation before working with the editor on a narrow screen.
+  const menu = page.getByRole('button',{name:'Abrir menú',exact:true}); if (await menu.getAttribute('aria-expanded') === 'true') await menu.click();
+  await page.getByRole('textbox',{name:'Contenido de la noticia',exact:true}).fill('Texto que debe conservarse');
+  await page.getByRole('button',{name:'Insertar imagen',exact:true}).click();
+  await page.locator('#photo-upload').setInputFiles({name:'invalida.txt',mimeType:'text/plain',buffer:Buffer.from('no es una imagen')});
+  await expect(page.locator('#image-message')).toContainText('Tipo de archivo no permitido');
+  await expect(page.getByRole('button',{name:'Usar imagen',exact:true})).toBeDisabled();
+  await page.locator('#photo-upload').setInputFiles({name:'logo.png',mimeType:'image/png',buffer:await readFile('docs/assets/images/logo.png')});
+  await expect(page.locator('#image-workspace')).toBeVisible();
+  await page.getByLabel('Proporción del recorte').selectOption('1');
+  expect(await page.locator('#news-image-dialog').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
+  await page.screenshot({path:'.local/news-image-mobile.png',fullPage:true});
+  await page.keyboard.press('Escape');
+  await expect(page.locator('#news-image-dialog')).not.toBeVisible();
+  await expect(page.getByRole('textbox',{name:'Contenido de la noticia',exact:true})).toHaveText('Texto que debe conservarse');
+  await expect(page.locator('.news-rich-text img')).toHaveCount(0);
+  await page.getByRole('button',{name:'Elegir imagen de portada',exact:true}).click();
+  await page.getByRole('tab',{name:'Galería',exact:true}).click();
+  await page.getByRole('button',{name:'Elegir demo.png',exact:true}).click();
+  await expect(page.locator('#image-workspace')).toBeVisible();
+  await page.getByRole('button',{name:'Usar imagen',exact:true}).click();
+  await expect(page.locator('#news-image-dialog')).not.toBeVisible();
+  await expect(page.locator('#news-cover-preview img')).toBeVisible();
 });
