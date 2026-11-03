@@ -158,7 +158,7 @@ export function createNewsEditor({ content, canEdit, onChange, status, math }) {
     if (!allowed()) return; $('#news-preview-heading').textContent = form.elements.titulo.value || 'Sin título';
     const root = $('#news-preview-body'); content.rich(root, htmlMode ? source.value : rich.getHTML(), { privateImages: true });
     const cover = $('#news-preview-cover'); cover.replaceChildren(); const src = form.elements.imagen.value;
-    if (src && !youtubeID(src)) { const image = document.createElement('img'); image.alt = form.elements.titulo.value; image.className = 'img-fluid'; if (draftImagePath(src)) image.setAttribute('data-private-image', src); else { const url = safeURL(src, { image: true }); if (url) image.src = url; } cover.append(image); }
+    if (src && !youtubeID(src)) { const image = document.createElement('img'); image.alt = form.elements.titulo.value; image.className = 'responsive-image'; if (draftImagePath(src)) image.setAttribute('data-private-image', src); else { const url = safeURL(src, { image: true }); if (url) image.src = url; } cover.append(image); }
     $('#news-preview-dialog').showModal(); await Promise.all([hydrate(root), hydrate(cover), math(root)]);
   });
   visual();

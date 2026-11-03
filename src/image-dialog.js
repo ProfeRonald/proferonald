@@ -11,7 +11,7 @@ export function createImageDialog({ canEdit, onApply }) {
   let bitmap, source = '', crop, turns = 0, flipX = false, flipY = false, changed = false;
   let busy = false, target = 'cover', generation = 0, request = 0, pageToken, galleryLoaded = false, drag;
   let applyCallback; let controller; let displayWidth = 0;
-  const message = (text, error = false) => { $('#image-message').textContent = text; $('#image-message').classList.toggle('text-danger', error); };
+  const message = (text, error = false) => { $('#image-message').textContent = text; $('#image-message').classList.toggle('is-error', error); };
   const size = () => imageSize(bitmap.width, bitmap.height, turns);
   function dispose() { generation++; request++; controller?.abort(); bitmap?.close(); bitmap = null; drag = null; source = ''; $('#image-workspace').hidden = true; }
   dialog.addEventListener('close', () => { dispose(); message(''); });

@@ -14,9 +14,11 @@ async function load(append = false) {
   pageToken = result.nextPageToken;
   if (!append) { items = []; names = []; $('#file-list').replaceChildren(); }
   $('#folder-name').textContent = prefix || 'Biblioteca';
+  $('#photos-folder').setAttribute('aria-pressed',String(prefix === 'fotos'));
+  $('#documents-folder').setAttribute('aria-pressed',String(prefix === 'archivos'));
   for (const folder of result.prefixes) {
     const li = document.createElement('li');
-    const b = document.createElement('button'); b.type = 'button'; b.className = 'btn btn-link'; b.textContent = `Carpeta: ${folder.name}`;
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'button button-quiet'; b.textContent = `Carpeta: ${folder.name}`;
     b.addEventListener('click', () => { prefix = folder.fullPath; load().catch(e => report(e, 'archivos')); });
     li.append(b); $('#file-list').append(li);
   }
@@ -25,7 +27,7 @@ async function load(append = false) {
     const name = metadata[result.items.indexOf(item)].customMetadata?.originalName || item.name;
     names[index] = name;
     const li = document.createElement('li'); li.className = 'file-row';
-    li.innerHTML = `<span>${escapeHTML(name)}</span> <button type="button" data-download="${index}" class="btn btn-sm btn-outline-primary">Descargar</button> ${item.fullPath.startsWith('fotos/') ? `<button type="button" data-copy="${index}" class="btn btn-sm btn-outline-primary">Copiar enlace público</button>` : ''} <button type="button" data-delete="${index}" class="btn btn-sm btn-outline-danger">Eliminar</button>`;
+    li.innerHTML = `<span>${escapeHTML(name)}</span> <button type="button" data-download="${index}" class="button button-small button-outline">Descargar</button> ${item.fullPath.startsWith('fotos/') ? `<button type="button" data-copy="${index}" class="button button-small button-outline">Copiar enlace público</button>` : ''} <button type="button" data-delete="${index}" class="button button-small button-danger">Eliminar</button>`;
     $('#file-list').append(li);
   }
   $('#more-files').hidden = !pageToken;

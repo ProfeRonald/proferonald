@@ -1,6 +1,6 @@
 # ProfeRonald
 
-Blog educativo con Firebase Authentication, Realtime Database, Storage y Hosting. La interfaz conserva el tema y el contenido existentes; el código mantenible está en `src/`. El gestor en `/archivos/` utiliza el permiso de administrador, no el correo del usuario.
+Blog educativo con Firebase Authentication, Realtime Database, Storage y Hosting. La interfaz editorial utiliza CSS propio y JavaScript modular, sin Bootstrap ni jQuery. Conserva el contenido y las URLs existentes; el código mantenible está en `src/`. El gestor en `/archivos/` utiliza el permiso de administrador, no el correo del usuario.
 
 ## Desarrollo
 

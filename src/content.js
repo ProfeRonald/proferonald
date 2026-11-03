@@ -1,4 +1,5 @@
 import createDOMPurify from 'dompurify';
+import { icon } from './icons.js';
 import { safeURL, youtubeID, escapeHTML, draftImagePath } from './core.js';
 export const articleTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'blockquote', 'ul', 'ol', 'li', 'h2', 'h3', 'h4', 'pre', 'code', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div', 'sup', 'sub'];
 export function contentTools(win) {
@@ -23,7 +24,7 @@ export function contentTools(win) {
       else { img.removeAttribute('data-private-image'); if (!src) { img.remove(); return; } img.src = src; }
       const width = Number(img.getAttribute('width'));
       if (Number.isInteger(width) && width >= 1 && width <= 1920) img.width = width; else img.removeAttribute('width');
-      img.loading = 'lazy'; img.decoding = 'async'; img.className = 'img-fluid';
+      img.loading = 'lazy'; img.decoding = 'async'; img.className = 'responsive-image';
     });
     return template.innerHTML;
   }
@@ -63,10 +64,12 @@ export function contentTools(win) {
   }
   return { sanitize, text, rich, plain };
 }
-export function mediaHTML(value, title) {
-  if (draftImagePath(value)) return '<p class="private-image">Imagen privada del borrador.</p>';
+export function mediaHTML(value, title, { thumbnail = false } = {}) {
+  if (draftImagePath(value)) return '<p class="private-image notice">Imagen privada del borrador.</p>';
   const video = youtubeID(value);
-  if (video) return `<button type="button" class="btn btn-outline-primary video-load" data-video="${video}">Reproducir video de YouTube (carga contenido externo)</button>`;
-  const url = safeURL(value, { image: true }) || '/assets/images/noticia.webp';
-  return `<img class="img-fluid rounded post-image" src="${escapeHTML(url)}" alt="${escapeHTML(title)}" width="960" height="540" loading="lazy" decoding="async">`;
+  const url = !video && safeURL(value,{image:true}) || '/assets/brand/cover.svg';
+  const image = '<img class="responsive-image post-image" src="'+escapeHTML(url)+'" alt="'+escapeHTML(title)+'" width="960" height="600" loading="lazy" decoding="async">';
+  if (thumbnail) return video ? '<span class="media-thumbnail">'+image+'<span class="video-label">'+icon('play',15)+' Video</span></span>' : image;
+  if (video) return '<button type="button" class="video-load" data-video="'+video+'"><span class="play-disc">'+icon('play',28)+'</span><strong>Reproducir video de YouTube</strong><span class="small muted">Se cargará contenido externo al reproducirlo.</span></button>';
+  return image;
 }

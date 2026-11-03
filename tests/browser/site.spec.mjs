@@ -23,16 +23,16 @@ test('guest sees public posts, searches by category and keeps legacy links', asy
   await page.goto('/?emulators=1');
   await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
   await expect(page.locator('#view article h2')).toHaveCount(6);
-  await expect(page.locator('#carousel')).toBeVisible();
+  await expect(page.locator('.featured-story')).toHaveCount(1);
+  await expect(page.locator('.post-grid > article')).toHaveCount(5);
   await expect(page.locator('#dailyVersesWrapper')).toHaveText('Versículo de prueba');
-  await expect(page.locator('#novedades article')).toHaveCount(2);
-  await expect(page.locator('.muro-der')).toBeVisible();
-  await expect(page.locator('.footer-widget')).toHaveCount(4);
-  await expect(page.locator('body')).toHaveCSS('font-family', /Rubik/);
-  await page.getByRole('button', {name:'Siguiente destacada',exact:true}).click();
-  await expect(page.locator('[data-feature="1"]')).toBeVisible();
-  await page.getByRole('button', {name:'Destacada 1',exact:true}).click();
-  await expect(page.locator('[data-feature="0"]')).toBeVisible();
+  const ids = await page.locator('#view article[data-post]').evaluateAll(items => items.map(el => el.dataset.post));
+  expect(new Set(ids).size).toBe(6);
+  await expect(page.locator('body')).toHaveCSS('font-family', /Inter/);
+  await expect(page.locator('main h1')).toHaveCSS('font-family', /Lora/);
+  await expect.poll(() => page.locator('.site-header .brand img').evaluate(img=>img.complete && img.naturalWidth>0)).toBe(true);
+  await page.evaluate(()=>scrollTo(0,500));
+  expect(Math.abs((await page.locator('.site-header').boundingBox()).y)).toBeLessThan(1);
   await page.getByRole('button', { name: 'Anteriores', exact: true }).click();
   await expect(page.getByText('Página 2', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Más recientes' }).click();
@@ -46,6 +46,7 @@ test('guest sees public posts, searches by category and keeps legacy links', asy
   await expect(page.getByRole('link', {name:'Compartir en Facebook', exact:true})).toBeVisible();
   await page.reload(); await expect(page.getByRole('heading', { name: 'Artículo 8', exact: true })).toBeVisible();
   await page.goBack(); await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
+  await page.getByRole('button',{name:'Abrir búsqueda',exact:true}).click();
   await page.getByLabel('Buscar publicaciones').fill('inexistente'); await page.getByRole('button', { name: 'Buscar', exact: true }).click();
   await expect(page.getByText('No hay publicaciones que coincidan.')).toBeVisible();
   await page.getByRole('button', { name: 'Limpiar', exact: true }).click();
@@ -70,7 +71,7 @@ test('mobile navigation, keyboard focus and no eager YouTube requests', async ({
   expect(youtube).toHaveLength(0);
   const menu = page.getByRole('button', {name:'Abrir menú',exact:true});
   await menu.click();
-  await expect(page.getByRole('link',{name:'Principal',exact:true})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Inicio',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Categorías',exact:true}).click();
   await page.getByRole('link',{name:'Matemática',exact:true}).first().click();
   await expect(page.getByRole('heading',{name:'Resultados',exact:true})).toBeVisible();
@@ -116,7 +117,7 @@ test('authenticated comments and replies remain literal, and subscriptions do no
   await page.getByRole('button', { name: 'Publicar comentario', exact: true }).click();
   await expect(page.getByText('Respuesta de prueba', { exact: true })).toHaveCount(1);
   for (let i = 0; i < 3; i++) {
-    await page.getByRole('link', { name: 'Principal', exact: true }).click();
+    await page.getByRole('link', { name: 'Inicio', exact: true }).click();
     await page.getByRole('link', { name: 'Artículo 8', exact: true }).click();
     await expect(page.getByText('Respuesta de prueba', { exact: true })).toHaveCount(1);
   }
@@ -129,6 +130,10 @@ test('manager grants admin access only and handles a private document upload', a
   await page.locator('#upload-file').setInputFiles({ name: 'prueba.txt', mimeType: 'text/plain', buffer: Buffer.from('documento de prueba') });
   await page.getByRole('button', { name: 'Subir archivo', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Descargar', exact: true })).toHaveCount(1);
+  await page.screenshot({path:'.local/editorial-manager-admin.png',fullPage:true});
+  await page.setViewportSize({width:320,height:812});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  await page.setViewportSize({width:1280,height:720});
   const download = page.waitForEvent('download'); await page.getByRole('button', { name: 'Descargar', exact: true }).click(); await download;
   await page.getByRole('button', { name: 'Salir', exact: true }).click();
   await expect(page.locator('#manager')).toBeHidden();
@@ -160,6 +165,7 @@ test('new draft images stay private until the article is published', async ({ pa
 
 test('visual editor crops a private inline image, reopens it and publishes the actual cropped pixels', async ({ page }) => {
   test.setTimeout(60000);
+  await page.setViewportSize({width:1440,height:1050});
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
   await page.getByRole('button',{name:'Nuevo',exact:true}).click();
   await page.getByLabel('Título',{exact:true}).fill('Noticia con editor visual');
@@ -174,12 +180,14 @@ test('visual editor crops a private inline image, reopens it and publishes the a
   const fixture = await sharp({create:{width:300,height:200,channels:3,background:'#ff0000'}}).composite([{input:await sharp({create:{width:150,height:200,channels:3,background:'#0000ff'}}).png().toBuffer(),left:150,top:0}]).png().toBuffer();
   await page.locator('#photo-upload').setInputFiles({name:'dos-colores.png',mimeType:'image/png',buffer:fixture});
   await expect(page.locator('#image-output-size')).toHaveText('Salida: 300 × 200 px');
+  await page.screenshot({path:'.local/editorial-image-editor-desktop.png'});
   await page.getByLabel('X (px)',{exact:true}).fill('150'); await page.getByLabel('X (px)',{exact:true}).press('Tab');
   await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 200 px');
   await page.getByLabel('Descripción de la imagen (texto alternativo)').fill('Mitad azul');
   await page.getByRole('button',{name:'Usar imagen',exact:true}).click();
   await expect(page.locator('#news-image-dialog')).not.toBeVisible();
   await expect(visual.getByRole('img',{name:'Mitad azul',exact:true})).toBeVisible();
+  await page.screenshot({path:'.local/editorial-editor-desktop.png',fullPage:true});
   await page.getByRole('button',{name:'Vista previa',exact:true}).click();
   await expect(page.locator('#news-preview-body strong').first()).toHaveText('Texto de la noticia');
   await expect(page.locator('#news-preview-body math-field')).toHaveCount(1);
@@ -234,6 +242,7 @@ test('image dialog handles invalid files, cancel and mobile cropping without cha
   await expect(page.locator('#news-image-dialog')).not.toBeVisible();
   await expect(page.getByRole('textbox',{name:'Contenido de la noticia',exact:true})).toHaveText('Texto que debe conservarse');
   await expect(page.locator('.news-rich-text img')).toHaveCount(0);
+  await page.screenshot({path:'.local/editorial-editor-mobile.png',fullPage:true});
   await page.getByRole('button',{name:'Elegir imagen de portada',exact:true}).click();
   await page.getByRole('tab',{name:'Galería',exact:true}).click();
   await page.getByRole('button',{name:'Elegir demo.png',exact:true}).click();
@@ -241,4 +250,25 @@ test('image dialog handles invalid files, cancel and mobile cropping without cha
   await page.getByRole('button',{name:'Usar imagen',exact:true}).click();
   await expect(page.locator('#news-image-dialog')).not.toBeVisible();
   await expect(page.locator('#news-cover-preview img')).toBeVisible();
+});
+
+test('editorial navigation, search dialog and small screens keep the new identity without framework requests', async ({ page }) => {
+  const requested=[]; page.on('request',request=>requested.push(request.url()));
+  await page.goto('/?emulators=1');
+  await expect(page.locator('.featured-story')).toBeVisible();
+  await page.locator('.site-header').getByRole('link',{name:'Recursos',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Recursos y conexiones.',exact:true})).toBeVisible();
+  await expect(page.locator('.resource-card')).toHaveCount(4);
+  await page.locator('.site-header').getByRole('link',{name:'Sobre mí',exact:true}).click();
+  await expect(page.getByRole('heading',{name:'Enseñar es otra forma de aprender.',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Abrir búsqueda',exact:true}).click();
+  await expect(page.getByLabel('Buscar publicaciones')).toBeFocused();
+  await page.keyboard.press('Escape'); await expect(page.locator('#search-dialog')).not.toBeVisible();
+  for(const width of [320,375,768]){
+    await page.setViewportSize({width,height:812});await page.goto('/?emulators=1');
+    await expect(page.locator('.featured-story')).toBeVisible();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+    const header=page.locator('.site-header');await page.evaluate(()=>scrollTo(0,500));expect(Math.abs((await header.boundingBox()).y)).toBeLessThan(1);
+  }
+  expect(requested.filter(url=>/bootstrap|jquery|font-awesome|fonts\.googleapis|fonts\.gstatic/i.test(url))).toHaveLength(0);
 });

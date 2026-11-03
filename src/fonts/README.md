@@ -1,0 +1,1 @@
+Local variable fonts for the editorial identity. Sources: Google Fonts CSS API (Inter v20, Lora v37), Latin and Latin Extended subsets. Inter normal 400–700; Lora normal and italic 400–600. See Inter-OFL.txt and Lora-OFL.txt for the redistribution licenses. Fonts are served from the site itself; no font provider request is made at runtime.

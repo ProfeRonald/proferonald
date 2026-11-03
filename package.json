@@ -23,7 +23,6 @@
     "@tiptap/extension-superscript": "3.32.2",
     "@tiptap/extension-table": "3.32.2",
     "@tiptap/starter-kit": "3.32.2",
-    "bootstrap": "5.3.8",
     "dompurify": "3.4.17",
     "firebase": "13.2.0",
     "mathlive": "0.111.4"

@@ -1,136 +1,46 @@
 <!doctype html>
-<html lang="es">
-<head>
+<html lang="es"><head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ProfeRonald - Blog</title>
+  <title>ProfeRonald</title>
   <meta name="description" content="Artículos, recursos y reflexiones sobre educación y matemáticas de Ronald Jiménez.">
-  <meta property="og:title" content="ProfeRonald - Blog">
+  <meta property="og:title" content="ProfeRonald">
   <meta property="og:type" content="website">
   <meta property="og:description" content="Artículos, recursos y reflexiones sobre educación y matemáticas de Ronald Jiménez.">
-  <meta property="og:image" content="https://proferonald.com/assets/images/logo.png">
+  <meta property="og:image" content="https://proferonald.com/assets/brand/social.png">
   <meta property="og:url" content="https://proferonald.com/">
-  <meta property="og:site_name" content="ProfeRonald - Blog">
+  <meta property="og:site_name" content="ProfeRonald">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="canonical" href="https://proferonald.com/">
-  <link rel="icon" href="/assets/images/favicon.ico">
+  <meta name="theme-color" content="#172D3D">
+  <link rel="icon" href="/assets/brand/mark.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="/assets/brand/favicon.ico">
   <link rel="stylesheet" href="{{APP_CSS}}">
 </head>
-<body class="layout-default">
+<body>
 <a class="skip-link" href="#view">Saltar al contenido</a>
-<header class="navbar navbar-expand-md navbar-light bg-white fixed-top mediumnavigation">
-<button class="navbar-toggler navbar-toggler-right" type="button" data-action="toggle-nav" aria-controls="navbarsWow" aria-expanded="false" aria-label="Abrir menú">
-<span class="navbar-toggler-icon"></span>
-</button>
-<div class="container">
-	<!-- Begin Logo -->
-	<a class="navbar-brand m-0" href="/" data-route>
-	<img width="10%" src="/assets/images/logo.png" alt="ProfeRonald - Logo"> ProfeRonald.Com
-	</a>
-	<!-- End Logo -->
-	<!-- Begin Menu -->
-	<div class="collapse navbar-collapse" id="navbarsWow">
-		<!-- Begin Menu -->
-		<ul class="navbar-nav ml-auto">
-			<li class="nav-item">
-			<a class="nav-link show-principal" href="/" data-route>Principal</a>
-			</li>
-			<li class="nav-item dropdown">
-			<button class="nav-link dropdown-toggle" type="button" id="categorias" data-action="toggle-categories" aria-expanded="false">Categorías</button>
-			<div class="dropdown-menu" aria-labelledby="categorias">
-				<a class="dropdown-item categorias" href="/?categoria=Matem%C3%A1tica" data-route>Matem&aacute;tica</a>
-				<a class="dropdown-item categorias" href="/?categoria=Noticias" data-route>Noticias</a>
-			</div>
-			</li>
-			<li class="nav-item" data-admin hidden>
-			<button class="nav-link" type="button" data-action="new">Nuevo</button><a class="nav-link" href="/#borradores" data-route>Borradores</a><a class="nav-link" href="/archivos/">Archivos</a>
-			</li>
-			<li class="nav-item">
-				<a class="nav-link" id="show-about" href="/#about" data-route>Ronald Jimenez</a>
-				</li>
-
-			<li class="nav-item">
-			<span id="user-name"></span><button type="button" id="login" class="nav-link"><i class="fa fa-key" aria-hidden="true"></i> Entrar</button>
-
-
-			</li>
-		</ul>
-		<!-- End Menu -->
-	</div>
-</div>
-</header>
-<div class="site-content">
-  <div id="app-status" role="status" aria-live="polite" hidden></div>
-
-  <main class="main-content" id="view" tabindex="-1"><h1>Blog del ProfeRonald</h1><p>Recursos de educación y matemáticas.</p><p role="status">Cargando publicaciones…</p></main>
-  <noscript><p>Activa JavaScript para buscar, iniciar sesión y comentar. Las publicaciones estáticas están disponibles desde el mapa del sitio.</p><a href="/sitemap.xml">Mapa del sitio</a></noscript>
-  <section id="editor" aria-labelledby="editor-title" hidden>
+<header class="site-header"><div class="site-wrap header-inner">
+  <a class="brand" href="/" data-route aria-label="ProfeRonald, inicio"><img src="/assets/brand/mark.svg" width="44" height="44" alt=""><span>ProfeRonald<span class="brand-dot">.</span></span></a>
+  <button class="icon-button menu-toggle" type="button" data-action="toggle-nav" aria-controls="nav-links" aria-expanded="false" aria-label="Abrir menú"><svg class="icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  <nav id="nav-links" class="site-nav" aria-label="Principal"><a data-route href="/">Inicio</a><div class="nav-dropdown"><button type="button" id="categorias" data-action="toggle-categories" aria-controls="category-menu" aria-expanded="false">Categorías <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button><div id="category-menu" class="category-menu" hidden><p class="muted small">Cargando temas…</p></div></div><a data-route href="/#recursos">Recursos</a><a data-route href="/#about">Sobre mí</a><div class="nav-account"><span id="user-name" class="account-name"></span><button type="button" class="account-button" id="login">Entrar</button></div></nav>
+  <div class="header-actions"><button type="button" class="search-toggle" data-action="open-search" aria-label="Abrir búsqueda"><svg class="icon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span>Buscar</span></button></div>
+</div><nav class="admin-strip" data-admin hidden aria-label="Administración"><div class="site-wrap"><span>Tu espacio de edición</span><button type="button" data-action="new">Nuevo</button><a data-route href="/#borradores">Borradores</a><a href="/archivos/">Archivos</a></div></nav></header>
+<div class="site-content"><div id="app-status" class="notice" role="status" aria-live="polite" hidden></div>
+<main id="view" tabindex="-1"><div class="site-wrap page-loading"><p class="eyebrow">El cuaderno de Ronald Jiménez</p><h1>Ideas que invitan a pensar.</h1><p role="status">Cargando publicaciones…</p></div></main>
+<noscript><div class="site-wrap notice"><p>Activa JavaScript para buscar, iniciar sesión y comentar. También puedes acceder a los artículos desde el mapa del sitio.</p><a href="/sitemap.xml">Mapa del sitio</a></div></noscript>
+  <section id="editor" class="workspace-panel" aria-labelledby="editor-title" hidden>
     <h1 id="editor-title">Nueva publicación</h1>
     <form id="article-form" class="news-form">
-      <div class="form-group"><label for="article-title">Título</label><input class="form-control" id="article-title" name="titulo" required maxlength="180"></div>
-      <div class="form-group"><label for="article-content">Contenido (HTML básico y fórmulas entre $ o $$)</label><textarea class="form-control" id="article-content" name="contenido" maxlength="100000" rows="14"></textarea></div>
-      <fieldset class="news-cover-fieldset"><legend>Portada y multimedia</legend><div id="news-cover-preview" class="news-cover-preview"><p>Sin imagen de portada</p></div><div class="news-image-tools"><button type="button" class="btn btn-outline-primary" id="news-cover-open">Elegir imagen de portada</button><button type="button" class="btn btn-outline-secondary" id="news-cover-edit" disabled>Editar portada</button><button type="button" class="btn btn-link" id="news-cover-remove" disabled>Quitar portada</button></div><label for="article-media">Imagen HTTPS o video de YouTube</label><input class="form-control" id="article-media" name="mediaURL" type="url" maxlength="2048"><input name="imagen" type="hidden"><p id="private-photo-note" class="small" hidden>Imagen guardada en privado. Se hará pública al publicar el artículo.</p><p class="small">Las imágenes nuevas y sus ediciones permanecen privadas mientras sean borradores. La galería contiene imágenes ya públicas.</p></fieldset>
-      <div class="form-group"><label for="article-categories">Categorías separadas por comas</label><input class="form-control" id="article-categories" name="categorias" maxlength="500"></div>
-      <div class="form-check mb-3"><input type="checkbox" class="form-check-input" name="activo" id="article-active"><label for="article-active" class="form-check-label">Publicar (desmarcado guarda un borrador privado)</label></div>
-      <button class="btn btn-primary" type="submit" id="save-article">Guardar</button><button class="btn btn-link" type="button" data-action="cancel-edit">Cancelar</button>
+      <div class="field-group"><label for="article-title">Título</label><input class="field" id="article-title" name="titulo" required maxlength="180"></div>
+      <div class="field-group"><label for="article-content">Contenido (HTML básico y fórmulas entre $ o $$)</label><textarea class="field" id="article-content" name="contenido" maxlength="100000" rows="14"></textarea></div>
+      <fieldset class="news-cover-fieldset"><legend>Portada y multimedia</legend><div id="news-cover-preview" class="news-cover-preview"><p>Sin imagen de portada</p></div><div class="news-image-tools"><button type="button" class="button button-outline" id="news-cover-open">Elegir imagen de portada</button><button type="button" class="button button-outline" id="news-cover-edit" disabled>Editar portada</button><button type="button" class="button button-quiet" id="news-cover-remove" disabled>Quitar portada</button></div><label for="article-media">Imagen HTTPS o video de YouTube</label><input class="field" id="article-media" name="mediaURL" type="url" maxlength="2048"><input name="imagen" type="hidden"><p id="private-photo-note" class="small" hidden>Imagen guardada en privado. Se hará pública al publicar el artículo.</p><p class="small">Las imágenes nuevas y sus ediciones permanecen privadas mientras sean borradores. La galería contiene imágenes ya públicas.</p></fieldset>
+      <div class="field-group"><label for="article-categories">Categorías separadas por comas</label><input class="field" id="article-categories" name="categorias" maxlength="500"></div>
+      <div class="check-field "><input type="checkbox" class="check-input" name="activo" id="article-active"><label for="article-active" class="check-label">Publicar (desmarcado guarda un borrador privado)</label></div>
+      <button class="button button-primary" type="submit" id="save-article">Guardar</button><button class="button button-quiet" type="button" data-action="cancel-edit">Cancelar</button>
     </form>
   </section>
 </div>
-<footer class="footer">
-	<div class="container">
-		<div class="row">
-			<div class="col-sm-3">
-				<div class="footer-widget">
-					<a href="/#contacto" data-route>
-					<img width="50%" src="/assets/images/logo.png" alt="ProfeRonald - Logo">
-					</a>
-				</div>
-			</div>
-			<div class="col-sm-3">
-				<div class="footer-widget">
-					<h5 class="title">Recursos</h5>
-					<ul>
-						<li><a target="_blank" rel="noopener noreferrer" href="https://escuelard.com">escuelaRD</a></li>
-						<li><a target="_blank" rel="noopener noreferrer" href="https://math--chat.web.app">MathChats</a></li>
-						<li><a target="_blank" rel="noopener noreferrer" href="https://farmaciadarselys.com">Farmacia Darselys</a></li>
-						<li><a target="_blank" rel="noopener noreferrer" href="https://instagram.com/politecnicoelsabrito">Polit&eacute;nico Maestra Elsa Brito</a></li>
-					</ul>
-				</div>
-			</div>
-			<div class="col-sm-3">
-				<div class="footer-widget">
-					<h5 class="title">T&eacute;minos de uso</h5>
-					<ul>
-						<li><a href="/#terminos" data-route class="terminos">T&eacute;rminos de uso</a></li>
-						<li><a href="/#politica" data-route class="terminos">Pol&iacute;tica de privacidad</a></li>
-						<li><a href="/#contacto" data-route>Contacto</a></li>
-					</ul>
-				</div>
-			</div>
-			<div class="col-sm-3">
-				<div class="footer-widget  footersocial">
-					<h5 class="title">Redes y enlaces</h5>
-						<a href="https://www.linkedin.com/in/proferonald/" aria-label="linkedin"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
-                        <a href="https://twitter.com/ProfeRonald" aria-label="twitter"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-                        <a href="https://www.instagram.com/proferonald/" aria-label="instagram"><i class="fa fa-instagram" aria-hidden="true"></i></a>
-                        <a href="https://www.facebook.com/ProfeRonaldCom/" aria-label="facebook-f"><i class="fa fa-facebook-f" aria-hidden="true"></i></a>
-                        <a href="https://proferonald.tumblr.com/" aria-label="tumblr"><i class="fa fa-tumblr" aria-hidden="true"></i></a>
-                        <a href="https://www.pinterest.com/proferonald/" aria-label="pinterest"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
-                        <a href="https://vimeo.com/proferonald" aria-label="vimeo"><i class="fa fa-vimeo" aria-hidden="true"></i></a>
-                        <a href="https://soundcloud.com/proferonald" aria-label="soundcloud"><i class="fa fa-soundcloud" aria-hidden="true"></i></a>
-						<a href="https://github.com/proferonald" aria-label="github"><i class="fa fa-github" aria-hidden="true"></i></a>
-				</div>
-			</div>
-		</div>
-		<div class="copyright">
-			<p class="pull-right" id="copy">
-				 Copyright © 2023 SaaS Dominicana
-			</p>
-			<div class="clearfix">
-			</div>
-		</div>
-	</div>
-	</footer>
+<footer class="site-footer"><div class="site-wrap footer-main"><div class="footer-brand"><a class="brand" data-route href="/"><img src="/assets/brand/mark.svg" width="40" height="40" alt=""><span>ProfeRonald<span class="brand-dot">.</span></span></a><p>Una mirada curiosa a las matemáticas,<br>la educación y la tecnología.</p><span class="footer-note">Hecho para compartir lo que aprendemos.</span></div><nav aria-label="Explorar"><h2>Explora el cuaderno</h2><a data-route href="/#categorias">Categorías</a><a data-route href="/#recursos">Recursos</a><a data-route href="/#about">Sobre mí</a><a data-route href="/#contacto">Contacto</a></nav><nav aria-label="Redes sociales"><h2>Nos encontramos en</h2><a href="https://www.instagram.com/proferonald/" target="_blank" rel="noopener noreferrer">Instagram ↗</a><a href="https://www.facebook.com/ProfeRonaldCom/" target="_blank" rel="noopener noreferrer">Facebook ↗</a><a href="https://www.linkedin.com/in/proferonald/" target="_blank" rel="noopener noreferrer">LinkedIn ↗</a><a href="https://github.com/proferonald" target="_blank" rel="noopener noreferrer">GitHub ↗</a><details class="more-social"><summary>Más redes</summary><a href="https://twitter.com/ProfeRonald">Twitter / X</a><a href="https://proferonald.tumblr.com/">Tumblr</a><a href="https://www.pinterest.com/proferonald/">Pinterest</a><a href="https://vimeo.com/proferonald">Vimeo</a><a href="https://soundcloud.com/proferonald">SoundCloud</a></details></nav></div><div class="site-wrap footer-bottom"><p id="copy">© ProfeRonald · SaaS Dominicana</p><div><a data-route href="/#terminos">Términos de uso</a><a data-route href="/#politica">Privacidad</a><a href="/sitemap.xml">Mapa del sitio</a></div></div></footer>
+<dialog id="search-dialog" class="search-dialog" aria-labelledby="search-title"><div class="dialog-heading"><div><p class="eyebrow">Encuentra una idea</p><h2 id="search-title">Buscar en el cuaderno</h2></div><button class="icon-button" type="button" data-action="close-search" aria-label="Cerrar búsqueda">×</button></div><form id="search-form" role="search"><label for="search-text">Buscar publicaciones</label><input id="search-text" class="field" name="q" type="search" maxlength="160" placeholder="Un tema, una palabra, una pregunta…"><div class="action-row"><button type="submit" class="button button-primary">Buscar</button><button type="button" id="clear-search" class="button button-quiet">Limpiar</button></div></form></dialog>
 <script type="module" src="{{APP_JS}}"></script>
-</body>
-</html>
+</body></html>

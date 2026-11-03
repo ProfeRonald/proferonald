@@ -7,5 +7,5 @@ export const firebaseConfig = Object.freeze({
   messagingSenderId: '647906089395',
   appId: '1:647906089395:web:72421f937bbf9f6a3693c6'
 });
-export const site = Object.freeze({ origin: 'https://proferonald.com', name: 'ProfeRonald - Blog', pageSize: 6 });
+export const site = Object.freeze({ origin: 'https://proferonald.com', name: 'ProfeRonald', pageSize: 6 });
 export const mathliveFonts = '/assets/build/mathlive-0.111.4/fonts';
