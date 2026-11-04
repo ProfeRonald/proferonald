@@ -26,6 +26,8 @@ test('guest sees public posts, searches by category and keeps legacy links', asy
   await expect(page.locator('.featured-story')).toHaveCount(1);
   await expect(page.locator('.post-grid > article')).toHaveCount(5);
   await expect(page.locator('#dailyVersesWrapper')).toHaveText('Versículo de prueba');
+  await expect(page.locator('.intro-annotation + .verse-card')).toContainText('Una pausa para reflexionar');
+  await expect(page.getByRole('heading', { name: 'Farmacia Darselys' })).toHaveCount(0);
   const ids = await page.locator('#view article[data-post]').evaluateAll(items => items.map(el => el.dataset.post));
   expect(new Set(ids).size).toBe(6);
   await expect(page.locator('body')).toHaveCSS('font-family', /Inter/);

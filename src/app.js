@@ -1,5 +1,5 @@
 import './blog.css';
-import { articleHTML, postCard, featuredPost, authorHTML, secondaryHTML, resourcesHTML, aboutHTML } from './presentation.js';
+import { articleHTML, postCard, featuredPost, authorHTML, reflectionHTML, resourcesHTML, aboutHTML } from './presentation.js';
 import { icon } from './icons.js';
 import { observeHeader } from './navigation.js';
 import { session, observeSession, login, logout, finishRedirect } from './auth.js';
@@ -13,9 +13,6 @@ import { prepareArticleMedia } from './article-media.js';
 const content = contentTools(window);
 const search = $('#search-form');
 observeHeader();
-$('#view').addEventListener('error', event => {
-  if (event.target instanceof HTMLImageElement && event.target.hasAttribute('data-sponsor-image')) event.target.hidden = true;
-}, true);
 let stopComments = () => {}; let routeVersion = 0; let currentPost = null;
 let cursors = ['']; let pageIndex = 0; let currentPage = [];
 let fullCatalog; let editing = null; let dirty = false; let replying = '';
@@ -94,13 +91,13 @@ function renderCards(items, more = false, filters = {}) {
   const { term, category, keyword } = filters;
   const filtered = Boolean(term || category || keyword);
   const home = !filtered && pageIndex === 0;
-  const introduction = home ? '<section class="home-intro"><div><p class="eyebrow">El cuaderno de Ronald Jiménez</p><h1>Ideas que invitan<br>a <em>pensar.</em></h1></div><div class="intro-copy"><p>Matemáticas, educación y tecnología, desde la mirada de un docente.</p><span class="intro-annotation">Para quienes enseñan y aprenden</span></div></section><nav class="category-ribbon" id="home-categories" aria-label="Temas de las publicaciones"><span>Explora por tema</span><a data-route href="/#categorias">Ver categorías</a></nav>' : '';
+  const introduction = home ? '<section class="home-intro"><div><p class="eyebrow">El cuaderno de Ronald Jiménez</p><h1>Ideas que invitan<br>a <em>pensar.</em></h1></div><div class="intro-copy"><p>Matemáticas, educación y tecnología, desde la mirada de un docente.</p><span class="intro-annotation">Para quienes enseñan y aprenden</span>'+reflectionHTML()+'</div></section><nav class="category-ribbon" id="home-categories" aria-label="Temas de las publicaciones"><span>Explora por tema</span><a data-route href="/#categorias">Ver categorías</a></nav>' : '';
   const featured = home && items.length ? featuredPost(items[0],content.text(items[0].contenido)) : '';
   const recent = home && items.length ? items.slice(1) : items;
   const headingTag = home ? 'h2' : 'h1';
   const heading = filtered ? '<div class="page-intro"><p class="eyebrow">Una idea lleva a otra</p><h1>Resultados</h1></div><div class="results-summary"><span>'+esc(term ? 'Búsqueda: «'+term+'»' : category ? 'Categoría: '+(categoryName(category) || category) : 'Palabra clave: '+keyword)+'</span><button class="button button-quiet button-small" type="button" data-action="clear-filters">Limpiar</button></div>' : '<div class="section-heading"><div><p class="eyebrow">Para seguir aprendiendo</p><'+headingTag+' id="publications-title">Publicaciones</'+headingTag+'></div><a class="text-link" data-route href="/#categorias">Explorar temas '+icon('arrow',16)+'</a></div>';
   const pagination = '<nav aria-label="Paginación" class="pagination-controls"><button class="button button-outline" data-action="newer" '+(pageIndex === 0 ? 'disabled':'')+'>Más recientes</button><span>Página '+(pageIndex+1)+'</span><button class="button button-outline" data-action="older" '+(!more?'disabled':'')+'>Anteriores</button></nav>';
-  $('#view').innerHTML = '<div class="site-wrap">'+introduction+featured+'<section class="'+(home?'latest-section':'listing-section')+'">'+heading+'<div class="post-grid">'+recent.map(post=>postCard(post,content.text(post.contenido))).join('')+'</div>'+(!items.length?'<p class="empty-state" role="status">No hay publicaciones que coincidan.</p>':'')+(home && items.length === 1 ? '<p class="muted">Pronto habrá más ideas para compartir.</p>':'')+pagination+'</section>'+(home?authorHTML()+secondaryHTML():'')+'</div>';
+  $('#view').innerHTML = '<div class="site-wrap">'+introduction+featured+'<section class="'+(home?'latest-section':'listing-section')+'">'+heading+'<div class="post-grid">'+recent.map(post=>postCard(post,content.text(post.contenido))).join('')+'</div>'+(!items.length?'<p class="empty-state" role="status">No hay publicaciones que coincidan.</p>':'')+(home && items.length === 1 ? '<p class="muted">Pronto habrá más ideas para compartir.</p>':'')+pagination+'</section>'+(home?authorHTML():'')+'</div>';
   if (home) {
     $('#home-categories').innerHTML = '<span>Explora por tema</span><a data-route href="/" aria-current="page">Todos</a>' + categoryNavigation;
     loadVerse();

@@ -34,8 +34,8 @@ export function articleHTML(post, bodyHTML = '', plainText = '') {
 export function authorHTML() {
   return `<section class="author-note" aria-labelledby="author-title"><div class="author-portrait"><img src="/assets/images/proferonald_foto.webp" alt="Ronald Jiménez" width="360" height="420" loading="lazy"></div><div class="author-note-copy"><p class="eyebrow">Detrás de este cuaderno</p><h2 id="author-title">Hola, soy Ronald.</h2><p>Educador dominicano, apasionado por las matemáticas y las posibilidades de la tecnología en el aprendizaje.</p><p>Este es un espacio para compartir ideas, experiencias y recursos que nos ayuden a enseñar y aprender mejor.</p><a class="text-link" data-route href="/#about">Conoce mi historia ${icon('arrow',18)}</a></div><span class="author-signature" aria-hidden="true">R.</span></section>`;
 }
-export function secondaryHTML() {
-  return `<aside class="quiet-corner" aria-label="Un momento para descubrir"><section class="verse-card"><p class="eyebrow">Una pausa para reflexionar</p><h2>Versículo del día</h2><div id="dailyVersesWrapper"><a href="https://dailyverses.net/es" target="_blank" rel="noopener noreferrer">Leer el versículo del día ${icon('external',16)}</a></div></section><section class="sponsor-card"><img class="sponsor-image" data-sponsor-image src="https://farmaciadarselys.com/noticia.jpg" alt="" width="96" height="72" loading="lazy"><p class="eyebrow">Publicidad</p><h2>Farmacia Darselys</h2><p>Un espacio para nuestra comunidad.</p><a class="text-link" target="_blank" rel="noopener noreferrer" href="https://farmaciadarselys.com">Visitar sitio ${icon('external',16)}</a></section></aside>`;
+export function reflectionHTML() {
+  return `<aside class="verse-card" aria-labelledby="reflection-title"><p class="eyebrow">Una pausa para reflexionar</p><h2 id="reflection-title">Versículo del día</h2><div id="dailyVersesWrapper"><a href="https://dailyverses.net/es" target="_blank" rel="noopener noreferrer">Leer el versículo del día ${icon('external',16)}</a></div></aside>`;
 }
 export const resources = [
   ['escuelaRD','https://escuelard.com','Un proyecto que forma parte de este espacio educativo.'],

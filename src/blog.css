@@ -63,15 +63,11 @@
 .author-note-copy > p:not(.eyebrow) { color:var(--muted); font-size:.95rem; }
 .author-note-copy .text-link { margin-top:5px; }
 .author-signature { position:absolute; right:25px; bottom:-35px; font:italic 210px/1 'Lora',serif; color:#172d3d08; }
-.quiet-corner { display:grid; grid-template-columns:1.25fr 1fr; gap:50px; margin-top:60px; padding-top:36px; border-top:1px solid var(--line); }
-.quiet-corner h2 { font-size:1.3rem; margin-bottom:12px; }
-.quiet-corner .eyebrow { margin-bottom:12px; font-size:.61rem; }
-.verse-card { padding-right:35px; }
+.verse-card { margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--line); }
+.home-intro .verse-card .eyebrow { margin-bottom:.35rem; }
+.verse-card h2 { font-size:1.15rem; margin-bottom:.35rem; }
 #dailyVersesWrapper { font-size:.85rem; color:var(--muted); }
 #dailyVersesWrapper a { color:var(--accent); text-decoration:underline; text-underline-offset:3px; }
-.sponsor-card { border-left:1px solid var(--line); padding-left:38px; }
-.sponsor-card > p:not(.eyebrow) { font-size:.85rem; color:var(--muted); margin-bottom:8px; }
-.sponsor-card .text-link { font-size:.75rem; }
 .page-loading,.page-intro { padding-top:60px; padding-bottom:36px; }
 .page-intro h1 { max-width:850px; margin-bottom:22px; }
 .page-intro > p:not(.eyebrow) { max-width:630px; color:var(--muted); font-size:1.05rem; }
@@ -154,8 +150,6 @@
   .author-note { grid-template-columns:160px 1fr; gap:28px; padding:26px; margin-top:48px; }
   .author-portrait img { height:250px; }
   .author-note-copy h2 { font-size:1.9rem; }
-  .quiet-corner { gap:25px; margin-top:40px; }
-  .sponsor-card { padding-left:24px; }
   .reading-layout { margin-top:26px; }
   .article-heading { margin-top:30px; }
   .article-cover { padding:10px; margin-bottom:28px; }
@@ -173,9 +167,6 @@
   .author-portrait img { height:160px; }
   .author-note-copy { padding:0; }
   .author-note-copy > p:not(.eyebrow) { font-size:.9rem; }
-  .quiet-corner { grid-template-columns:1fr; gap:26px; }
-  .verse-card { padding:0; }
-  .sponsor-card { border-left:0; padding:25px 0 0; border-top:1px solid var(--line); }
   .pagination-controls .button { padding:10px 13px; font-size:.75rem; }
   .pagination-controls > span { font-size:.65rem; }
   .resource-grid { grid-template-columns:1fr; }
@@ -192,4 +183,3 @@
 .error-page > .brand { margin-bottom:80px; }
 .error-page h1 { margin-bottom:25px; }
 .error-page > p:not(.eyebrow) { max-width:560px; color:var(--muted); margin-bottom:28px; }
-.sponsor-image { float:right; width:96px; height:72px; margin:0 0 12px 18px; object-fit:contain; border-radius:4px; }
