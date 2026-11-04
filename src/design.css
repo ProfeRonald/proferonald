@@ -41,6 +41,8 @@ svg.icon { flex-shrink:0; vertical-align:middle; pointer-events:none; }
 .account-button { background:none; border:0; border-left:1px solid var(--line); padding:6px 0 6px 20px; min-height:44px; font-size:.8rem; }
 .account-name { max-width:125px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:.7rem; }
 .account-name:empty { display:none; }
+.account-identity { display:inline-flex; align-items:center; gap:7px; min-width:0; }
+.account-avatar { flex:none; width:28px; height:28px; border-radius:50%; object-fit:cover; background:var(--soft); }
 .menu-toggle { display:none !important; }
 .admin-strip { border-top:1px solid var(--line); background:var(--ink); color:var(--paper); font-size:.75rem; }
 .admin-strip .site-wrap { display:flex; align-items:center; gap:24px; padding-block:8px; }
@@ -140,9 +142,11 @@ math-field[read-only] { border:0; background:transparent; pointer-events:none; }
   .brand > span { font-size:1.45rem; }
   .site-nav { gap:17px; font-size:.8rem; }
   .header-actions { gap:12px; }
-  .search-toggle > span,.account-name { display:none; }
+  .search-toggle > span { display:none; }
+  .account-name { max-width:85px; }
 }
 @media(max-width:800px) {
+  .nav-account .account-name { max-width:160px; }
   .site-wrap { width:calc(100% - 40px); }
   .header-inner { min-height:76px; gap:14px; }
   .brand { gap:9px; } .brand img { width:36px; height:36px; }

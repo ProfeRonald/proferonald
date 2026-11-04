@@ -7,7 +7,7 @@ if (!process.env.FIREBASE_DATABASE_EMULATOR_HOST) throw new Error('Emulador obli
 const app = initializeApp({ projectId: 'demo-proferonald', databaseURL: 'https://demo-proferonald-default-rtdb.firebaseio.com' });
 if (!process.env.FIREBASE_AUTH_EMULATOR_HOST) throw new Error('Emulador de autenticación obligatorio.');
 const result = await getAuth(app).importUsers([
-  { uid: 'admin', email: 'admin@example.test', displayName: 'Administrador', customClaims: { admin: true }, providerData: [{ providerId: 'google.com', uid: 'google-admin', email: 'admin@example.test', displayName: 'Administrador' }] },
+  { uid: 'admin', email: 'admin@example.test', displayName: 'Administrador', photoURL: 'https://example.test/avatar.png', customClaims: { admin: true }, providerData: [{ providerId: 'google.com', uid: 'google-admin', email: 'admin@example.test', displayName: 'Administrador', photoURL: 'https://example.test/avatar.png' }] },
   { uid: 'user', email: 'user@example.test', displayName: 'Usuario', providerData: [{ providerId: 'google.com', uid: 'google-user', email: 'user@example.test', displayName: 'Usuario' }] }
 ]);
 if (result.failureCount) throw new Error('No se pudieron preparar las cuentas demo.');

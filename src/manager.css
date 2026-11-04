@@ -1,6 +1,10 @@
 @import './design.css';
 .manager-main { padding-top:calc(var(--header-height) + 45px); min-height:80vh; }
 .manager-back { margin-left:auto; font-size:.8rem; }
+@media(max-width:800px) {
+  #manager-account { margin-left:auto; }
+  .workspace-page .header-inner #manager-account:not([hidden]) + #manager-auth { margin-left:0; }
+}
 .manager-heading { margin-bottom:26px; }
 .manager-heading h1 { font-size:2.8rem; margin-bottom:16px; }
 .manager-heading > p:last-child { color:var(--muted); }

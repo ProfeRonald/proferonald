@@ -7,7 +7,7 @@ import * as data from './data.js';
 import { escapeHTML as esc, decodePID, postURL, dateInfo, editorialCategories, categoryName, postCategories, matchesPost, validateComment, safeURL, youtubeID, draftImagePath } from './core.js';
 import { site, mathliveFonts } from './config.js';
 import { contentTools, mediaHTML } from './content.js';
-import { $, status, report, busy, button, fieldError } from './ui.js';
+import { $, status, report, busy, button, fieldError, renderAccount } from './ui.js';
 import { draftPhotoBlob, publishDraftPhoto, deleteFile } from './files.js';
 import { prepareArticleMedia } from './article-media.js';
 const content = contentTools(window);
@@ -49,7 +49,7 @@ async function mathIfNeeded(element) {
 }
 function syncAuth() {
   $('#login').textContent = session.user ? 'Salir' : 'Entrar';
-  $('#user-name').textContent = session.user?.displayName || '';
+  renderAccount($('#blog-account'), session.user);
   document.querySelectorAll('[data-admin]').forEach(el => { el.hidden = !session.admin; });
   if ($('#comment-form')) $('#comment-form').hidden = !session.user;
   if ($('#comment-login')) $('#comment-login').hidden = !!session.user;

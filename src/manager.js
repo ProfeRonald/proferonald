@@ -1,6 +1,6 @@
 import { observeSession, login, logout, finishRedirect, session } from './auth.js';
 import { listFiles, uploadFile, publicPhotoURL, deleteFile, downloadFile, fileMetadata } from './files.js';
-import { $, status, report, busy, fieldError } from './ui.js';
+import { $, status, report, busy, fieldError, renderAccount } from './ui.js';
 import { escapeHTML } from './core.js';
 let prefix = ''; let pageToken; let items = []; let generation = 0;
 let names = [];
@@ -38,6 +38,7 @@ observeSession(state => {
   generation++;
   $('#manager').hidden = !state.admin;
   $('#manager-auth').textContent = state.user ? 'Salir' : 'Entrar con Google';
+  renderAccount($('#manager-account'), state.user);
   $('#access-message').textContent = state.admin ? 'Solo las imágenes de fotos/ son públicas. Los documentos se descargan mediante una sesión autorizada.' : state.user ? 'Tu cuenta no tiene permiso de administrador.' : 'Inicia sesión con la cuenta administradora.';
   if (!state.admin) { items = []; $('#file-list').replaceChildren(); }
   else load().catch(e => report(e, 'archivos'));

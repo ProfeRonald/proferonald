@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 import sharp from 'sharp';
 test.beforeEach(async ({page}) => {
   await page.route('https://dailyverses.net/get/verse.js?*', route => route.fulfill({contentType:'text/javascript',body:'document.querySelector("#dailyVersesWrapper").innerHTML = "<b>Versículo de prueba</b>";'}));
+  await page.route('https://example.test/avatar.png', route => route.fulfill({path:'docs/assets/images/usuario.png',contentType:'image/png'}));
 });
 async function sourceHTML(page, value) {
   const source = page.locator('#article-content');
@@ -90,6 +91,8 @@ test('mobile navigation, keyboard focus and no eager YouTube requests', async ({
 });
 test('administrator creates, edits and withdraws a post; failed save preserves text', async ({ page }) => {
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
+  await expect(page.locator('#blog-account .account-name')).toHaveText('Administrador');
+  await expect(page.locator('#blog-account img')).toHaveAttribute('src', 'https://example.test/avatar.png');
   await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
   await page.locator('#article-categories input[value=matematicas]').check();
   await page.getByLabel('Título', { exact: true }).fill('Publicación de prueba');
@@ -138,6 +141,8 @@ test('authenticated comments and replies remain literal, and subscriptions do no
 });
 test('manager grants admin access only and handles a private document upload', async ({ page }) => {
   await page.goto('/archivos/?emulators=1'); await signIn(page, 'admin@example.test', '#manager-auth');
+  await expect(page.locator('#manager-account .account-name')).toHaveText('Administrador');
+  await expect(page.locator('#manager-account img')).toHaveAttribute('src', 'https://example.test/avatar.png');
   await expect(page.locator('#manager')).toBeVisible();
   await page.getByRole('button', { name: 'Documentos privados', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'archivos', exact: true })).toBeVisible();

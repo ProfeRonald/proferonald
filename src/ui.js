@@ -1,5 +1,17 @@
-import { escapeHTML } from './core.js';
+import { escapeHTML, safeURL } from './core.js';
 export const $ = selector => document.querySelector(selector);
+export function renderAccount(identity, user) {
+  const photo = identity.querySelector('img');
+  const name = identity.querySelector('.account-name');
+  const fallback = '/assets/images/usuario.png';
+  identity.hidden = !user;
+  name.textContent = user ? user.displayName || 'Usuario' : '';
+  photo.onerror = null;
+  if (!user) { photo.removeAttribute('src'); return; }
+  const src = safeURL(user.photoURL, { image: true }) || fallback;
+  if (src !== fallback) photo.onerror = () => { photo.onerror = null; photo.src = fallback; };
+  if (photo.getAttribute('src') !== src) photo.src = src;
+}
 export function status(message, error = false) {
   const el = $('#app-status'); if (!el) return;
   el.textContent = message; el.className = `notice ${error ? 'notice-error' : ''}`; el.hidden = !message;
