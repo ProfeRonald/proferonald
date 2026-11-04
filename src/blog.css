@@ -1,6 +1,6 @@
 @import './design.css';
 @import './news-editor.css';
-.home-intro { display:flex; gap:50px; align-items:flex-end; justify-content:space-between; padding:66px 0 42px; }
+.home-intro { display:flex; gap:50px; align-items:flex-start; justify-content:space-between; padding:66px 0 42px; }
 .home-intro h1 { font-size:clamp(2.6rem,5vw,4.6rem); max-width:720px; line-height:1.08; }
 .home-intro h1 em { color:var(--accent); font-weight:400; }
 .home-intro .intro-copy { width:280px; font-size:.92rem; color:var(--muted); padding-bottom:7px; }
