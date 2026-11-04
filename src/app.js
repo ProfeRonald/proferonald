@@ -88,7 +88,7 @@ const categoryNavigation = Object.entries(editorialCategories)
   .map(([key, name]) => `<a data-route href="/?tema=${key}">${name}</a>`).join('');
 $('#category-menu').innerHTML = categoryNavigation;
 $('#article-categories').innerHTML = Object.entries(editorialCategories)
-  .map(([key, name]) => `<label><input type="checkbox" name="tema" value="${key}"> ${name}</label>`).join('');
+  .map(([key, name]) => `<label class="category-choice"><input type="checkbox" name="tema" value="${key}"><span class="category-choice-face"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path class="category-choice-plus" d="M12 5v14M5 12h14"/><path class="category-choice-check" d="m5 12 4 4L19 6"/></svg>${name}</span></label>`).join('');
 function renderCards(items, more = false, filters = {}) {
   currentPage = items;
   const { term, category, keyword } = filters;
