@@ -1,4 +1,4 @@
-import { GoogleAuthProvider, browserLocalPersistence, getRedirectResult, onIdTokenChanged, setPersistence, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, browserLocalPersistence, getRedirectResult, onIdTokenChanged, setPersistence, signInWithRedirect, signOut } from 'firebase/auth';
 import { ref, update } from 'firebase/database';
 import { auth, db } from './firebase.js';
 export let session = { user: null, admin: false };
@@ -19,16 +19,7 @@ export function observeSession(callback, report) {
 }
 export async function login() {
   await setPersistence(auth, browserLocalPersistence);
-  const provider = new GoogleAuthProvider();
-  try { await signInWithPopup(auth, provider); }
-  catch (e) {
-    if (e.code !== 'auth/popup-blocked') throw e;
-    sessionStorage.setItem('proferonald-auth-redirect', '1');
-    try { await signInWithRedirect(auth, provider); }
-    catch (error) { sessionStorage.removeItem('proferonald-auth-redirect'); throw error; }
-  }
+  await signInWithRedirect(auth, new GoogleAuthProvider());
 }
 export const logout = () => signOut(auth);
-export const finishRedirect = () => sessionStorage.getItem('proferonald-auth-redirect') === '1'
-  ? getRedirectResult(auth).finally(() => sessionStorage.removeItem('proferonald-auth-redirect'))
-  : Promise.resolve(null);
+export const finishRedirect = () => getRedirectResult(auth);

@@ -11,12 +11,12 @@ async function sourceHTML(page, value) {
   await source.fill(value);
 }
 async function signIn(page, email, selector = '#login') {
-  const popupPromise = page.waitForEvent('popup');
+  const initialURL = page.url();
   await page.locator(selector).click();
-  const popup = await popupPromise;
+  await page.waitForURL(url => url.pathname.includes('/emulator/auth/handler'), { waitUntil: 'load' });
   // The emulator shows accounts before its external widget script attaches handlers.
-  await popup.waitForLoadState('load');
-  await popup.getByText(email, { exact: true }).click();
+  await page.getByText(email, { exact: true }).click();
+  await page.waitForURL(initialURL);
   await expect(page.locator(selector)).toHaveText('Salir', { timeout: 15000 });
 }
 test('guest sees public posts, searches by category and keeps legacy links', async ({ page }) => {
