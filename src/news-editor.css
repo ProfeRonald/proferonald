@@ -16,6 +16,11 @@
 .news-rich-text:focus { outline: 2px solid var(--ink); outline-offset: -2px; }
 .news-rich-text img, #news-preview-body img { max-width: 100%; height: auto; display: block; margin: 1rem 0; }
 .news-image-node { margin:1rem 0; }
+.news-image-node[data-image-align="center"] { text-align:center; }
+@media (min-width:541px) {
+  .news-image-node[data-image-align="left"] { float:left; max-width:48%; margin:.35rem 1rem .65rem 0; }
+  .news-image-node[data-image-align="right"] { float:right; max-width:48%; margin:.35rem 0 .65rem 1rem; }
+}
 .news-image-frame { display:inline-block; position:relative; max-width:100%; vertical-align:top; }
 .news-image-frame img { margin:0; }
 .news-image-node.ProseMirror-selectednode .news-image-frame,

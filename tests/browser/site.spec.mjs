@@ -198,6 +198,7 @@ test('visual editor crops a private inline image, reopens it and publishes the a
   await page.getByLabel('X (px)',{exact:true}).fill('150'); await page.getByLabel('X (px)',{exact:true}).press('Tab');
   await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 200 px');
   await page.getByLabel('Descripción de la imagen (texto alternativo)').fill('Mitad azul');
+  await page.getByLabel('Alineación con el texto').selectOption('left');
   await page.getByRole('button',{name:'Usar imagen',exact:true}).click();
   await expect(page.locator('#news-image-dialog')).not.toBeVisible();
   await expect(visual.getByRole('img',{name:'Mitad azul',exact:true})).toBeVisible();
@@ -218,6 +219,7 @@ test('visual editor crops a private inline image, reopens it and publishes the a
   await visual.getByRole('img',{name:'Mitad azul',exact:true}).dblclick();
   await expect(page.locator('#news-image-dialog')).toBeVisible();
   await expect(page.locator('#image-workspace')).toBeVisible();
+  await expect(page.getByLabel('Alineación con el texto')).toHaveValue('left');
   await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 200 px');
   await page.getByRole('button',{name:'Girar 90 grados a la derecha',exact:true}).click();
   await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 113 px');
@@ -244,6 +246,8 @@ test('visual editor crops a private inline image, reopens it and publishes the a
   await expect(page.getByRole('heading',{name:'Noticia con editor visual',exact:true})).toBeVisible();
   await expect(page.locator('#article-body img')).toHaveAttribute('src',/^http:\/\/127\.0\.0\.1:9199\//);
   await expect(page.locator('#article-body img')).toHaveAttribute('width','90');
+  await expect(page.locator('#article-body img')).toHaveAttribute('data-image-align','left');
+  await expect(page.locator('#article-body img')).toHaveCSS('float','left');
   expect(await page.locator('#article-body img').getAttribute('data-private-image')).toBeNull();
   const response = await page.request.get(await page.locator('#article-body img').getAttribute('src')); expect(response.ok()).toBe(true);
   const published = await response.body(); const metadata = await sharp(published).metadata(); expect(metadata.width).toBe(75); expect(metadata.height).toBe(100);

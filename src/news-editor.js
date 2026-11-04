@@ -6,6 +6,7 @@ import Subscript from '@tiptap/extension-subscript';
 import Superscript from '@tiptap/extension-superscript';
 import { textToolbarHTML } from './editor-template.js';
 import { createImageDialog } from './image-dialog.js';
+import { imageAlignment } from './content.js';
 import { draftImagePath, safeURL, youtubeID } from './core.js';
 import { draftPhotoBlob, uploadFile, deleteFile } from './files.js';
 
@@ -42,7 +43,11 @@ export function createNewsEditor({ content, canEdit, onChange, status, math }) {
   }
   const EditableImage = Image.extend({
     addAttributes() {
-      return { ...this.parent?.(), src: { default: null, parseHTML: element => element.getAttribute('data-private-image') || element.getAttribute('src') }, width: { default: null, parseHTML: element => element.getAttribute('width') } };
+      return { ...this.parent?.(), src: { default: null, parseHTML: element => element.getAttribute('data-private-image') || element.getAttribute('src') }, width: { default: null, parseHTML: element => element.getAttribute('width') }, align: {
+        default: null,
+        parseHTML: element => imageAlignment(element.getAttribute('data-image-align')),
+        renderHTML: ({ align }) => imageAlignment(align) ? { 'data-image-align': align } : {}
+      } };
     },
     parseHTML() { return [{ tag: 'img[data-private-image]' }, ...this.parent()]; },
     renderHTML({ HTMLAttributes }) {
@@ -57,7 +62,11 @@ export function createNewsEditor({ content, canEdit, onChange, status, math }) {
         const image = document.createElement('img'); image.className = 'news-editable-image'; let version = 0;
         frame.append(image);
         const setWidth = width => { if (width) image.width = Number(width); else image.removeAttribute('width'); };
-        const clampWidth = width => Math.round(Math.max(1, Math.min(1920, wrapper.clientWidth, Math.max(32, width))));
+        const clampWidth = width => {
+          const limit = getComputedStyle(wrapper).float === 'none' ? 1 : .48;
+          return Math.round(Math.max(1, Math.min(1920, editor.view.dom.clientWidth * limit, Math.max(32, width))));
+        };
+        const updateAlignment = align => { wrapper.dataset.imageAlign = imageAlignment(align) || ''; };
         function commitWidth(width) {
           const pos = getPos();
           if (allowed() && typeof pos === 'number' && Number(node.attrs.width) !== width) {
@@ -104,12 +113,13 @@ export function createNewsEditor({ content, canEdit, onChange, status, math }) {
           setWidth(current.attrs.width);
           previewURL(current.attrs.src).then(url => { if (token === version && allowed() && image.isConnected) image.src = url; }).catch(() => { if (token === version) image.alt = 'Imagen privada no disponible.'; });
         }
-        update(node);
+        update(node); updateAlignment(node.attrs.align);
         return { dom: wrapper, stopEvent: event => Boolean(event.target.closest?.('.news-image-handle')), ignoreMutation: mutation => mutation.type !== 'selection', update(next) {
           if (next.type !== node.type) return false;
           const changed = ['src', 'alt', 'title', 'width'].some(key => next.attrs[key] !== node.attrs[key]);
           const sourceChanged = next.attrs.src !== node.attrs.src;
           node = next;
+          updateAlignment(next.attrs.align);
           if (sourceChanged) update(next);
           else if (changed) { image.alt = next.attrs.alt || ''; setWidth(next.attrs.width); }
           return true;
@@ -160,7 +170,7 @@ export function createNewsEditor({ content, canEdit, onChange, status, math }) {
     }
     if (!allowed() || version !== generation) throw new Error('La vista de edición cambió.');
     if (!draftImagePath(src) && !safeURL(src, { image: true })) throw new Error('La dirección de la imagen no es válida.');
-    await apply({ src, alt: image.alt, width: image.width || null }); onChange();
+    await apply({ src, alt: image.alt, width: image.width || null, align: imageAlignment(image.align) }); onChange();
     status(draftImagePath(src) ? 'Imagen guardada en privado. Se hará pública al publicar el artículo.' : 'Imagen insertada. Guarda la noticia para conservar el cambio.');
   } });
   function openBodyImage(edit = false, file) {

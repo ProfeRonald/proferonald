@@ -2,6 +2,7 @@ import createDOMPurify from 'dompurify';
 import { icon } from './icons.js';
 import { safeURL, youtubeID, escapeHTML, draftImagePath } from './core.js';
 export const articleTags = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 's', 'blockquote', 'ul', 'ol', 'li', 'h2', 'h3', 'h4', 'pre', 'code', 'a', 'img', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'span', 'div', 'sup', 'sub'];
+export const imageAlignment = value => ['left', 'center', 'right'].includes(value) ? value : null;
 export function contentTools(win) {
   const purify = createDOMPurify(win);
   function sanitize(html, { privateImages = false } = {}) {
@@ -9,10 +10,13 @@ export function contentTools(win) {
     input.content.querySelectorAll('img').forEach(img => {
       if (draftImagePath(img.getAttribute('src'))) { img.setAttribute('data-private-image', img.getAttribute('src')); img.removeAttribute('src'); }
     });
-    const clean = purify.sanitize(input.innerHTML, { ALLOWED_TAGS: articleTags, ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'width', 'colspan', 'rowspan', 'data-private-image'], ADD_URI_SAFE_ATTR: ['data-private-image'], ALLOW_DATA_ATTR: false });
+    const clean = purify.sanitize(input.innerHTML, { ALLOWED_TAGS: articleTags, ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'width', 'colspan', 'rowspan', 'data-private-image', 'data-image-align'], ADD_URI_SAFE_ATTR: ['data-private-image'], ALLOW_DATA_ATTR: false });
     const template = win.document.createElement('template');
     template.innerHTML = clean;
     template.content.querySelectorAll('[data-private-image]:not(img)').forEach(element => element.removeAttribute('data-private-image'));
+    template.content.querySelectorAll('[data-image-align]').forEach(element => {
+      if (element.tagName !== 'IMG' || !imageAlignment(element.getAttribute('data-image-align'))) element.removeAttribute('data-image-align');
+    });
     template.content.querySelectorAll('a').forEach(a => {
       const href = safeURL(a.getAttribute('href'));
       if (href) { a.href = href; a.rel = 'noopener noreferrer'; } else a.removeAttribute('href');

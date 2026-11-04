@@ -28,6 +28,7 @@ export const imageDialogHTML = `
     </div></div>
   </div>
   <div id="image-alt-group"><label for="image-alt">Descripción de la imagen (texto alternativo)</label><input id="image-alt" class="field" maxlength="300" placeholder="Describe la imagen para quien no pueda verla"></div>
+  <div id="image-align-group"><label for="image-align">Alineación con el texto</label><select id="image-align" class="field"><option value="">En su propia línea</option><option value="left">Izquierda · texto a la derecha</option><option value="center">Centrada</option><option value="right">Derecha · texto a la izquierda</option></select></div>
   </div>
   <div class="news-dialog-actions"><button type="button" class="button button-secondary" data-image-close>Cancelar</button><button type="button" class="button button-primary" id="image-apply" disabled>Usar imagen</button></div>
 </dialog>`;

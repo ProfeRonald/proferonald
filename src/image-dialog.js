@@ -146,7 +146,7 @@ export function createImageDialog({ canEdit, onApply }) {
         const blob = await new Promise(resolve => exported.toBlob(resolve, 'image/webp', 0.88));
         if (!blob) throw new Error('No se pudo crear la imagen editada.'); file = new File([blob], 'imagen-editada.webp', { type: 'image/webp' });
       }
-      await onApply({ file, src: source, alt: $('#image-alt').value.trim(), width: file ? output.width : displayWidth || output.width, target }, applyCallback);
+      await onApply({ file, src: source, alt: $('#image-alt').value.trim(), width: file ? output.width : displayWidth || output.width, align: $('#image-align').value, target }, applyCallback);
       if (open === generation) dialog.close();
     } catch (error) { if (open === generation) fail(error); }
     finally { busy = false; dialog.querySelectorAll('button,input,select').forEach(el => { el.disabled = false; }); $('#image-apply').disabled = !bitmap && !source; }
@@ -156,6 +156,7 @@ export function createImageDialog({ canEdit, onApply }) {
       if (!canEdit() || busy) return;
       dispose(); galleryLoaded = false; pageToken = undefined; $('#gallery-items').replaceChildren(); $('#gallery-more').hidden = true;
       target = kind; displayWidth = Number(attrs.width) || 0; applyCallback = apply; $('#image-alt').value = attrs.alt || ''; $('#image-alt-group').hidden = kind === 'cover'; $('#image-url').value = draftImagePath(attrs.src) ? '' : attrs.src || '';
+      $('#image-align-group').hidden = kind === 'cover'; $('#image-align').value = attrs.align || '';
       $('#photo-upload').value = ''; $('#image-apply').disabled = true; $('#news-image-title').textContent = kind === 'cover' ? 'Imagen de portada' : 'Imagen del contenido';
       if (!dialog.open) dialog.showModal(); $('#image-tab-file').click();
       if (file) loadBlob(file).catch(fail); else if (attrs.src) loadURL(attrs.src).catch(fail); else message('Elige una imagen del equipo, de la galería o de un enlace.');

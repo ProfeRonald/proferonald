@@ -87,13 +87,18 @@ input[type="file"]::file-selector-button { border:1px solid var(--line); border-
 .gallery-item { padding:5px; border:1px solid var(--line); border-radius:5px; background:var(--surface); }
 .gallery-item:hover { border-color:var(--accent); }
 .gallery-item img { object-fit:cover; display:block; }
-.article-post { font-size:18px; line-height:1.85; overflow-wrap:anywhere; }
+.article-post { display:flow-root; font-size:18px; line-height:1.85; overflow-wrap:anywhere; }
 .article-post p { margin-bottom:1.4em; }
 .article-post h2 { font-size:1.85rem; margin:1.8em 0 .75em; }
 .article-post h3 { font-size:1.45rem; margin:1.6em 0 .7em; }
 .article-post h4 { font-size:1.2rem; margin:1.4em 0 .7em; }
 .article-post a { color:var(--accent); text-decoration:underline; text-underline-offset:3px; }
 .article-post img { display:block; max-width:100%; height:auto; margin:1.7rem 0; border-radius:4px; }
+.article-post img[data-image-align="center"] { margin-inline:auto; }
+@media (min-width:541px) {
+  .article-post img[data-image-align="left"] { float:left; max-width:48%; margin:.35rem 1rem .65rem 0; }
+  .article-post img[data-image-align="right"] { float:right; max-width:48%; margin:.35rem 0 .65rem 1rem; }
+}
 .article-post ul,.article-post ol { padding-left:1.5em; margin-bottom:1.5em; }
 .article-post li { padding-left:.25em; margin-bottom:.4em; }
 .article-post blockquote { margin:2em 0; padding:10px 0 10px 24px; border-left:3px solid var(--accent); font-family:'Lora',Georgia,serif; font-size:1.2em; }
