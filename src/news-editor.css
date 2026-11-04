@@ -43,6 +43,9 @@
 #image-canvas { display: block; width: 100%; height: auto; background: #e8edf0; border: 1px solid var(--line); cursor: crosshair; touch-action: none; }
 .news-image-settings { min-width: 0; }
 .news-crop-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.news-output-fields { min-width:0; margin:.75rem 0 0; padding:0; border:0; }
+.news-output-fields legend { margin-bottom:.35rem; font-weight:600; }
+.news-output-fields p { margin:.35rem 0 0; }
 .news-dialog input, .news-dialog select, .news-dialog textarea { max-width: 100%; min-width: 0; }
 .news-dialog input[type="file"] { width: 100%; }
 .news-image-settings input[type="range"] { width: 100%; }

@@ -20,7 +20,10 @@ export const imageDialogHTML = `
       <div class="news-image-tools"><button type="button" class="button button-outline" data-image-transform="rotate-left" aria-label="Girar 90 grados a la izquierda">↶ Girar</button><button type="button" class="button button-outline" data-image-transform="rotate-right" aria-label="Girar 90 grados a la derecha">↷ Girar</button><button type="button" class="button button-outline" data-image-transform="flip-x">Voltear horizontal</button><button type="button" class="button button-outline" data-image-transform="flip-y">Voltear vertical</button></div>
       <label for="image-brightness">Brillo</label><input id="image-brightness" type="range" min="50" max="150" value="100">
       <label for="image-contrast">Contraste</label><input id="image-contrast" type="range" min="50" max="150" value="100">
-      <label for="image-output-width">Ancho de salida (px; máximo 1920)</label><input type="number" id="image-output-width" class="field" min="1" max="1920">
+      <fieldset class="news-output-fields" aria-describedby="image-output-help"><legend>Dimensiones finales</legend>
+        <div class="news-crop-fields"><label>Ancho de salida (px)<input type="number" id="image-output-width" class="field" min="1" max="1920"></label><label>Alto de salida (px)<input type="number" id="image-output-height" class="field" min="1" max="1920"></label></div>
+        <p id="image-output-help" class="small">Cambia una medida y la otra se ajustará para mantener la proporción del recorte. Máximo 1920 px por lado, sin ampliar el original.</p>
+      </fieldset>
       <output id="image-output-size" aria-live="polite"></output><button type="button" id="image-reset" class="button button-quiet">Restablecer imagen</button>
     </div></div>
   </div>

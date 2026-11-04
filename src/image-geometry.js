@@ -11,8 +11,8 @@ export function centeredCrop(width, height, ratio = 0) {
   const w = Math.min(width, height * ratio), h = w / ratio;
   return clampCrop({ x: (width - w) / 2, y: (height - h) / 2, width: w, height: h }, width, height);
 }
-export function outputSize(crop, requestedWidth = crop.width) {
-  const width = Math.max(1, Math.min(crop.width, 1920, Math.round(Number(requestedWidth) || crop.width)));
-  const scale = Math.min(1, 1920 / Math.max(width, width * crop.height / crop.width));
-  return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(width * crop.height / crop.width * scale)) };
+export function outputSize(crop, requested, axis = 'width') {
+  const limit = Math.max(1, Math.round(Number(requested) || crop[axis]));
+  const scale = Math.min(1, limit / crop[axis], 1920 / Math.max(crop.width, crop.height));
+  return { width: Math.max(1, Math.round(crop.width * scale)), height: Math.max(1, Math.round(crop.height * scale)) };
 }

@@ -223,14 +223,19 @@ test('visual editor crops a private inline image, reopens it and publishes the a
   await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 113 px');
   await page.getByRole('button',{name:'Restablecer imagen',exact:true}).click();
   await expect(page.locator('#image-output-size')).toHaveText('Salida: 150 × 200 px');
-  await page.getByRole('button',{name:'Cancelar',exact:true}).last().click();
+  await page.getByLabel('Ancho de salida (px)').fill('90');
+  await expect(page.getByLabel('Alto de salida (px)')).toHaveValue('120');
+  await page.getByLabel('Alto de salida (px)').fill('100');
+  await expect(page.getByLabel('Ancho de salida (px)')).toHaveValue('75');
+  await page.getByRole('button',{name:'Usar imagen',exact:true}).click();
+  await expect(page.locator('#news-image-dialog')).not.toBeVisible();
   await page.getByLabel('Publicar (desmarcado guarda un borrador privado)').check();
   await page.getByRole('button',{name:'Guardar',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Noticia con editor visual',exact:true})).toBeVisible();
   await expect(page.locator('#article-body img')).toHaveAttribute('src',/^http:\/\/127\.0\.0\.1:9199\//);
   expect(await page.locator('#article-body img').getAttribute('data-private-image')).toBeNull();
   const response = await page.request.get(await page.locator('#article-body img').getAttribute('src')); expect(response.ok()).toBe(true);
-  const published = await response.body(); const metadata = await sharp(published).metadata(); expect(metadata.width).toBe(150); expect(metadata.height).toBe(200);
+  const published = await response.body(); const metadata = await sharp(published).metadata(); expect(metadata.width).toBe(75); expect(metadata.height).toBe(100);
   const {data} = await sharp(published).removeAlpha().raw().toBuffer({resolveWithObject:true}); expect(data[2]).toBeGreaterThan(220); expect(data[0]).toBeLessThan(30);
 });
 

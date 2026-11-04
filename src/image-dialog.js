@@ -11,6 +11,13 @@ export function createImageDialog({ canEdit, onApply }) {
   let bitmap, source = '', crop, turns = 0, flipX = false, flipY = false, changed = false;
   let busy = false, target = 'cover', generation = 0, request = 0, pageToken, galleryLoaded = false, drag;
   let applyCallback; let controller; let displayWidth = 0;
+  let outputAxis = 'width', requestedOutput;
+  const dimensionsForExport = () => outputSize(crop, requestedOutput, outputAxis);
+  function showOutput(editingAxis) {
+    const output = dimensionsForExport();
+    for (const axis of ['width', 'height']) if (axis !== editingAxis) $('#image-output-' + axis).value = output[axis];
+    $('#image-output-size').textContent = `Salida: ${output.width} × ${output.height} px`;
+  }
   const message = (text, error = false) => { $('#image-message').textContent = text; $('#image-message').classList.toggle('is-error', error); };
   const size = () => imageSize(bitmap.width, bitmap.height, turns);
   function dispose() { generation++; request++; controller?.abort(); bitmap?.close(); bitmap = null; drag = null; source = ''; $('#image-workspace').hidden = true; }
@@ -33,11 +40,11 @@ export function createImageDialog({ canEdit, onApply }) {
     ctx.save(); ctx.fillStyle = '#0008'; ctx.beginPath(); ctx.rect(0, 0, canvas.width, canvas.height); ctx.rect(crop.x * sx, crop.y * sy, crop.width * sx, crop.height * sy); ctx.fill('evenodd');
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.strokeRect(crop.x * sx + 1, crop.y * sy + 1, Math.max(1, crop.width * sx - 2), Math.max(1, crop.height * sy - 2)); ctx.restore();
     if (updateFields) for (const name of ['x', 'y', 'width', 'height']) $('#crop-' + name).value = crop[name];
-    const output = outputSize(crop, $('#image-output-width').value); $('#image-output-size').textContent = `Salida: ${output.width} × ${output.height} px`;
+    showOutput();
   }
   function reset() {
     turns = 0; flipX = flipY = false; $('#image-ratio').value = '0'; $('#image-brightness').value = $('#image-contrast').value = '100';
-    crop = centeredCrop(bitmap.width, bitmap.height); $('#image-output-width').value = Math.min(1920, bitmap.width); paint();
+    crop = centeredCrop(bitmap.width, bitmap.height); outputAxis = 'width'; requestedOutput = Math.min(1920, bitmap.width); paint();
   }
   async function loadBlob(blob, url = '') {
     filePolicy(blob, true); const token = ++request; const open = generation;
@@ -46,9 +53,9 @@ export function createImageDialog({ canEdit, onApply }) {
     if (token !== request || open !== generation || !dialog.open || !canEdit()) { next.close(); return; }
     if (!next.width || !next.height || next.width * next.height > 40_000_000) { next.close(); throw new Error('La imagen supera 40 megapíxeles.'); }
     bitmap?.close(); bitmap = next; source = url; reset();
-    if (displayWidth > 0) { $('#image-output-width').value = Math.min(1920, displayWidth, bitmap.width); paint(); }
+    if (displayWidth > 0) { requestedOutput = Math.min(1920, displayWidth, bitmap.width); showOutput(); }
     changed = !url || Math.max(bitmap.width, bitmap.height) > 1920 || (displayWidth > 0 && displayWidth !== bitmap.width);
-    $('#image-workspace').hidden = false; $('#image-apply').disabled = false; message('Imagen lista. Ajusta el recorte y pulsa Usar imagen.');
+    $('#image-workspace').hidden = false; $('#image-apply').disabled = false; message('Imagen lista. Ajusta el recorte o las dimensiones finales y pulsa Usar imagen.');
     if (!$('#image-alt').value && blob.name) $('#image-alt').value = blob.name.replace(/\.[^.]+$/, '').slice(0, 300);
   }
   async function loadURL(value) {
@@ -111,7 +118,12 @@ export function createImageDialog({ canEdit, onApply }) {
     if (action === 'flip-x') flipX = !flipX; if (action === 'flip-y') flipY = !flipY;
     changed = true; paint();
   }));
-  for (const id of ['image-brightness', 'image-contrast', 'image-output-width']) $('#' + id).addEventListener('input', () => { changed = true; paint(); });
+  for (const id of ['image-brightness', 'image-contrast']) $('#' + id).addEventListener('input', () => { changed = true; paint(); });
+  for (const axis of ['width', 'height']) {
+    const input = $('#image-output-' + axis);
+    input.addEventListener('input', () => { outputAxis = axis; requestedOutput = input.value; showOutput(axis); });
+    input.addEventListener('change', () => showOutput());
+  }
   $('#image-reset').addEventListener('click', () => { if (bitmap) { reset(); changed = !source; } });
   const point = event => { const box = canvas.getBoundingClientRect(), dimensions = size(); return { x: Math.max(0, Math.min(dimensions.width - 1, (event.clientX - box.left) * dimensions.width / box.width)), y: Math.max(0, Math.min(dimensions.height - 1, (event.clientY - box.top) * dimensions.height / box.height)) }; };
   canvas.addEventListener('pointerdown', event => { if (!bitmap || busy || event.button !== 0) return; event.preventDefault(); drag = point(event); canvas.setPointerCapture(event.pointerId); });
@@ -128,8 +140,8 @@ export function createImageDialog({ canEdit, onApply }) {
     dialog.querySelectorAll('button,input,select').forEach(el => { el.disabled = true; }); message('Guardando imagen…');
     try {
       let file;
-      const output = bitmap ? outputSize(crop, $('#image-output-width').value) : {};
-      if (bitmap && (changed || !source)) {
+      const output = bitmap ? dimensionsForExport() : {};
+      if (bitmap && (changed || !source || output.width !== bitmap.width || output.height !== bitmap.height)) {
         const exported = document.createElement('canvas'); exported.width = output.width; exported.height = output.height;
         const context = exported.getContext('2d'); context.scale(output.width / crop.width, output.height / crop.height); context.translate(-crop.x, -crop.y); drawImage(context);
         const blob = await new Promise(resolve => exported.toBlob(resolve, 'image/webp', 0.88));
