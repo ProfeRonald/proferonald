@@ -1,11 +1,13 @@
 // The generated file is checked in. Run only when intentionally changing rule templates.
 import { writeFile } from 'node:fs/promises';
+import { editorialCategories } from '../src/core.js';
 const admin = 'auth != null && auth.token.admin === true';
 const fields = {
   titulo: { '.validate': 'newData.isString() && newData.val().length > 0 && newData.val().length <= 180' },
   contenido: { '.validate': 'newData.isString() && newData.val().length > 0 && newData.val().length <= 100000' },
   imagen: { '.validate': "newData.isString() && newData.val().length <= 2048 && (newData.val() === '' || newData.val().beginsWith('https://') || (auth != null && auth.token.aud === 'demo-proferonald' && newData.val().beginsWith('http://127.0.0.1:9199/')))" },
   categorias: { '.validate': 'newData.isString() && newData.val().length <= 500' },
+  categoria: { '.validate': Object.keys(editorialCategories).map(key => `newData.val() === '${key}'`).join(' || ') },
   activo: { '.validate': 'newData.val() === 0 || newData.val() === 1' },
   fecha: { '.validate': 'newData.isNumber() && newData.val() > 0 && newData.val() <= now' },
   actualizado: { '.validate': 'newData.isNumber() && newData.val() <= now' },

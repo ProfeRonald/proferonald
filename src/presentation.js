@@ -1,18 +1,25 @@
-import { escapeHTML as esc, categories, postURL, dateInfo } from './core.js';
+import { escapeHTML as esc, keywords, categoryName, postCategory, postURL, dateInfo } from './core.js';
 import { mediaHTML } from './content.js';
 import { icon } from './icons.js';
 
 const pathURL = id => new URL(postURL(id)).pathname;
-export const categoryLinks = value => `<ul class="category-tags">${categories(value).map(c => `<li><a data-route href="/?categoria=${encodeURIComponent(c)}">${esc(c)}</a></li>`).join('')}</ul>`;
+function categoryLink(post) {
+  const key = postCategory(post);
+  return `<div class="category-tags"><a data-route href="/?tema=${key}">${categoryName(key)}</a></div>`;
+}
+function keywordLinks(value) {
+  const tags = keywords(value);
+  return tags.length ? `<nav class="article-keywords" aria-label="Palabras clave"><p>Palabras clave</p><ul>${tags.map(tag => `<li><a data-route href="/?palabra=${encodeURIComponent(tag)}">${esc(tag)}</a></li>`).join('')}</ul></nav>` : '';
+}
 export function postMeta(post, text = '') {
   const date = dateInfo(post.fecha), minutes = Math.max(1, Math.ceil(text.trim().split(/\s+/).filter(Boolean).length / 200));
   return `<span class="post-meta"><time datetime="${date.iso}">${esc(date.label)}</time><span aria-hidden="true">·</span><span>${minutes} min de lectura</span></span>`;
 }
 export function postCard(post, text) {
-  return `<article class="post-card" data-post="${esc(post.id)}"><a class="post-card-image" data-route href="${esc(pathURL(post.id))}" tabindex="-1" aria-hidden="true">${mediaHTML(post.imagen, '', { thumbnail: true })}</a><div class="post-card-copy">${categoryLinks(post.categorias)}<h2><a data-route href="${esc(pathURL(post.id))}">${esc(post.titulo)}</a></h2><p>${esc(text.slice(0, 190))}${text.length > 190 ? '…' : ''}</p>${postMeta(post, text)}<a class="text-link" data-route href="${esc(pathURL(post.id))}">Leer artículo ${icon('arrow',18)}</a></div></article>`;
+  return `<article class="post-card" data-post="${esc(post.id)}"><a class="post-card-image" data-route href="${esc(pathURL(post.id))}" tabindex="-1" aria-hidden="true">${mediaHTML(post.imagen, '', { thumbnail: true })}</a><div class="post-card-copy">${categoryLink(post)}<h2><a data-route href="${esc(pathURL(post.id))}">${esc(post.titulo)}</a></h2><p>${esc(text.slice(0, 190))}${text.length > 190 ? '…' : ''}</p>${postMeta(post, text)}<a class="text-link" data-route href="${esc(pathURL(post.id))}">Leer artículo ${icon('arrow',18)}</a></div></article>`;
 }
 export function featuredPost(post, text) {
-  return `<article class="featured-story" data-post="${esc(post.id)}"><div class="featured-copy"><p class="eyebrow"><span class="accent-dot"></span> En portada</p>${categoryLinks(post.categorias)}<h2><a data-route href="${esc(pathURL(post.id))}">${esc(post.titulo)}</a></h2><p class="featured-excerpt">${esc(text.slice(0, 270))}${text.length > 270 ? '…' : ''}</p>${postMeta(post,text)}<a class="button button-primary" data-route href="${esc(pathURL(post.id))}">Leer artículo ${icon('arrow',18)}</a></div><a class="featured-media" data-route href="${esc(pathURL(post.id))}" tabindex="-1" aria-hidden="true">${mediaHTML(post.imagen,'',{thumbnail:true})}</a></article>`;
+  return `<article class="featured-story" data-post="${esc(post.id)}"><div class="featured-copy"><p class="eyebrow"><span class="accent-dot"></span> En portada</p>${categoryLink(post)}<h2><a data-route href="${esc(pathURL(post.id))}">${esc(post.titulo)}</a></h2><p class="featured-excerpt">${esc(text.slice(0, 270))}${text.length > 270 ? '…' : ''}</p>${postMeta(post,text)}<a class="button button-primary" data-route href="${esc(pathURL(post.id))}">Leer artículo ${icon('arrow',18)}</a></div><a class="featured-media" data-route href="${esc(pathURL(post.id))}" tabindex="-1" aria-hidden="true">${mediaHTML(post.imagen,'',{thumbnail:true})}</a></article>`;
 }
 export function sharingHTML(post) {
   const url = encodeURIComponent(postURL(post.id)), title = encodeURIComponent(post.titulo);
@@ -23,7 +30,7 @@ export function commentsHTML() {
 }
 // One presentation for both server HTML and client navigation. bodyHTML is sanitized by the caller.
 export function articleHTML(post, bodyHTML = '', plainText = '') {
-  return `<div class="reading-layout"><a class="back-link" data-route href="/">${icon('arrow',17)} Todas las publicaciones</a><article class="reading-article" data-post="${esc(post.id)}"><header class="article-heading">${categoryLinks(post.categorias)}<h1>${esc(post.titulo)}</h1><div class="article-byline"><img src="/assets/images/proferonald_foto.webp" width="42" height="42" alt="" loading="lazy"><div><span>ProfeRonald</span>${postMeta(post,plainText)}</div></div>${post.activo !== 1 ? '<p class="draft-badge">Borrador privado</p>' : ''}<div class="admin-post-tools" data-admin hidden><button type="button" class="button button-outline" data-action="edit">Editar</button><button type="button" class="button button-danger" data-action="delete-post">Eliminar publicación</button></div></header><figure class="article-cover" id="post-media">${mediaHTML(post.imagen,post.titulo)}</figure><div class="article-post" id="article-body">${bodyHTML}</div>${sharingHTML(post)}<nav id="post-navigation" class="post-neighbors" aria-label="Otras publicaciones"></nav></article>${commentsHTML()}</div>`;
+  return `<div class="reading-layout"><a class="back-link" data-route href="/">${icon('arrow',17)} Todas las publicaciones</a><article class="reading-article" data-post="${esc(post.id)}"><header class="article-heading">${categoryLink(post)}<h1>${esc(post.titulo)}</h1><div class="article-byline"><img src="/assets/images/proferonald_foto.webp" width="42" height="42" alt="" loading="lazy"><div><span>ProfeRonald</span>${postMeta(post,plainText)}</div></div>${post.activo !== 1 ? '<p class="draft-badge">Borrador privado</p>' : ''}<div class="admin-post-tools" data-admin hidden><button type="button" class="button button-outline" data-action="edit">Editar</button><button type="button" class="button button-danger" data-action="delete-post">Eliminar publicación</button></div></header><figure class="article-cover" id="post-media">${mediaHTML(post.imagen,post.titulo)}</figure><div class="article-post" id="article-body">${bodyHTML}</div>${keywordLinks(post.categorias)}${sharingHTML(post)}<nav id="post-navigation" class="post-neighbors" aria-label="Otras publicaciones"></nav></article>${commentsHTML()}</div>`;
 }
 export function authorHTML() {
   return `<section class="author-note" aria-labelledby="author-title"><div class="author-portrait"><img src="/assets/images/proferonald_foto.webp" alt="Ronald Jiménez" width="360" height="420" loading="lazy"></div><div class="author-note-copy"><p class="eyebrow">Detrás de este cuaderno</p><h2 id="author-title">Hola, soy Ronald.</h2><p>Educador dominicano, apasionado por las matemáticas y las posibilidades de la tecnología en el aprendizaje.</p><p>Este es un espacio para compartir ideas, experiencias y recursos que nos ayuden a enseñar y aprender mejor.</p><a class="text-link" data-route href="/#about">Conoce mi historia ${icon('arrow',18)}</a></div><span class="author-signature" aria-hidden="true">R.</span></section>`;

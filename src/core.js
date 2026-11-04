@@ -41,16 +41,40 @@ export function dateInfo(value) {
   return { iso: d.toISOString(), label: new Intl.DateTimeFormat('es-DO', { dateStyle: 'long', timeZone: 'America/Santo_Domingo' }).format(d) };
 }
 export const normalize = value => String(value ?? '').normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('es');
-export const categories = value => [...new Set(String(value ?? '').split(',').map(s => s.trim()).filter(Boolean))];
+export const editorialCategories = Object.freeze({
+  matematicas: 'Matemáticas',
+  educacion: 'Educación',
+  tecnologia: 'Tecnología',
+  cultura: 'Cultura',
+  noticias: 'Noticias'
+});
+export const categoryName = key => typeof key === 'string' && Object.hasOwn(editorialCategories, key) ? editorialCategories[key] : '';
+// The historical RTDB field "categorias" stores the article's keywords.
+export const keywords = value => [...new Set(String(value ?? '').split(',').map(s => s.trim()).filter(Boolean))];
+const legacyTopics = [
+  ['tecnologia', ['tecnologia', 'latex', 'tex', 'msword']],
+  ['matematicas', ['matematica', 'matematicas', 'algebra', 'geometria']],
+  ['cultura', ['cultura', 'espanol', 'lengua', 'castellano']],
+  ['educacion', ['educacion', 'docencia', 'estudiante', 'estudiantes']]
+];
+export function postCategory(post) {
+  if (categoryName(post.categoria)) return post.categoria;
+  const tags = new Set(keywords(post.categorias).map(normalize));
+  return legacyTopics.find(([, aliases]) => aliases.some(alias => tags.has(alias)))?.[0] || 'noticias';
+}
 export const draftImagePath = value => /^private:(imagenes\/[a-f0-9-]{36}\.webp)$/.exec(String(value ?? ''))?.[1] || '';
-export function matchesPost(post, term, category = '') {
-  return (!category || categories(post.categorias).some(c => normalize(c) === normalize(category))) && normalize([post.titulo, post.contenido, post.categorias].join(' ')).includes(normalize(term));
+export function matchesPost(post, term, { category = '', keyword = '' } = {}) {
+  const topic = postCategory(post);
+  return (!category || topic === category) &&
+    (!keyword || keywords(post.categorias).some(tag => normalize(tag) === normalize(keyword))) &&
+    normalize([post.titulo, post.contenido, post.categorias, categoryName(topic)].join(' ')).includes(normalize(term));
 }
 export function validateArticle(input) {
-  const post = { titulo: String(input.titulo ?? '').trim(), contenido: String(input.contenido ?? '').trim(), categorias: categories(input.categorias).join(','), imagen: String(input.imagen ?? '').trim(), activo: input.activo ? 1 : 0 };
+  const post = { titulo: String(input.titulo ?? '').trim(), contenido: String(input.contenido ?? '').trim(), categoria: input.categoria, categorias: keywords(input.categorias).join(','), imagen: String(input.imagen ?? '').trim(), activo: input.activo ? 1 : 0 };
   if (!post.titulo || post.titulo.length > 180) throw new Error('El título debe tener entre 1 y 180 caracteres.');
   if (!post.contenido || post.contenido.length > 100000) throw new Error('El contenido debe tener entre 1 y 100 000 caracteres.');
-  if (post.categorias.length > 500) throw new Error('Las categorías no pueden superar 500 caracteres.');
+  if (!categoryName(post.categoria)) throw new Error('Selecciona una categoría editorial.');
+  if (post.categorias.length > 500) throw new Error('Las palabras clave no pueden superar 500 caracteres.');
   if (post.imagen && !draftImagePath(post.imagen) && !youtubeID(post.imagen) && !safeURL(post.imagen, { image: true })) throw new Error('La imagen debe usar HTTPS o ser un video de YouTube válido.');
   if (post.imagen && !draftImagePath(post.imagen)) post.imagen = youtubeID(post.imagen) ? `https://www.youtube-nocookie.com/embed/${youtubeID(post.imagen)}` : safeURL(post.imagen, { image: true });
   if (post.imagen.length > 2048) throw new Error('La dirección multimedia es demasiado larga.');

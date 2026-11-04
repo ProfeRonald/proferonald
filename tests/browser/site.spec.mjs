@@ -42,6 +42,7 @@ test('guest sees public posts, searches by category and keeps legacy links', asy
   await expect(page.getByRole('heading', { name: 'Artículo 8', exact: true })).toBeVisible();
   await expect(page.getByText('Respuesta asíncrona', { exact: true })).toBeVisible();
   await expect(page.locator('#article-body script')).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Palabras clave' }).getByRole('link', { name: 'Matemática', exact: true })).toHaveAttribute('href', '/?palabra=Matem%C3%A1tica');
   await expect(page.locator('#post-navigation a')).toHaveCount(1);
   await expect(page.getByRole('link', {name:'Compartir en Facebook', exact:true})).toBeVisible();
   await page.reload(); await expect(page.getByRole('heading', { name: 'Artículo 8', exact: true })).toBeVisible();
@@ -53,6 +54,11 @@ test('guest sees public posts, searches by category and keeps legacy links', asy
   await expect(page.getByRole('heading', { name: 'Publicaciones', exact: true })).toBeVisible();
   await page.goto('/?emulators=1&pid=' + encodePID('-NCTb9s4nnhF0cY0sAr8'));
   await expect(page.getByRole('heading', { name: 'Artículo 8', exact: true })).toBeVisible();
+  await page.getByRole('navigation', { name: 'Palabras clave' }).getByRole('link', { name: 'Matemática', exact: true }).click();
+  await expect(page.getByText('Palabra clave: Matemática')).toBeVisible();
+  await expect(page.locator('.post-grid > article')).toHaveCount(4);
+  await page.goto('/?categoria=Matem%C3%A1tica');
+  await expect(page.locator('.post-grid > article')).toHaveCount(4);
 });
 test('invalid link, contact and manager do not expose admin tools', async ({ page }) => {
   await page.goto('/?emulators=1&pid=invalid'); await expect(page.getByRole('heading', { name: 'Enlace no válido' })).toBeVisible();
@@ -73,7 +79,8 @@ test('mobile navigation, keyboard focus and no eager YouTube requests', async ({
   await menu.click();
   await expect(page.getByRole('link',{name:'Inicio',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Categorías',exact:true}).click();
-  await page.getByRole('link',{name:'Matemática',exact:true}).first().click();
+  await expect(page.locator('#category-menu a')).toHaveCount(5);
+  await page.locator('#category-menu a[href="/?tema=matematicas"]').click();
   await expect(page.getByRole('heading',{name:'Resultados',exact:true})).toBeVisible();
   await expect(menu).toHaveAttribute('aria-expanded','false');
   await page.goto('/?emulators=1'); await page.keyboard.press('Tab'); await expect(page.getByRole('link', { name: 'Saltar al contenido' })).toBeFocused();
@@ -82,13 +89,15 @@ test('mobile navigation, keyboard focus and no eager YouTube requests', async ({
 test('administrator creates, edits and withdraws a post; failed save preserves text', async ({ page }) => {
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
   await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+  await page.locator('#article-category').selectOption('matematicas');
   await page.getByLabel('Título', { exact: true }).fill('Publicación de prueba');
   await sourceHTML(page, '<p>Contenido seguro $x=1$</p><script>evil()</script>');
-  await page.getByLabel('Categorías separadas por comas').fill('Matemática');
+  await page.locator('#article-keywords').fill('Ecuaciones, Prueba');
   await page.getByLabel('Publicar (desmarcado guarda un borrador privado)').check();
   await page.getByRole('button', { name: 'Guardar', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Publicación de prueba', exact: true })).toBeVisible();
   await expect(page.locator('#article-body script')).toHaveCount(0);
+  await expect(page.getByRole('navigation', { name: 'Palabras clave' }).getByRole('link', { name: 'Ecuaciones' })).toHaveAttribute('href', '/?palabra=Ecuaciones');
   await expect(page.locator('math-field')).toHaveCount(1);
   await expect.poll(() => page.evaluate(() => document.fonts.check('16px KaTeX_Main'))).toBe(true);
   await page.getByRole('button', { name: 'Editar', exact: true }).click();
@@ -144,6 +153,7 @@ test('manager grants admin access only and handles a private document upload', a
 test('new draft images stay private until the article is published', async ({ page }) => {
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
   await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
+  await page.locator('#article-category').selectOption('matematicas');
   await page.getByLabel('Título', { exact: true }).fill('Borrador con imagen privada');
   await sourceHTML(page, 'Contenido reservado hasta publicar.');
   await page.getByRole('button',{name:'Elegir imagen de portada',exact:true}).click();
@@ -168,6 +178,7 @@ test('visual editor crops a private inline image, reopens it and publishes the a
   await page.setViewportSize({width:1440,height:1050});
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
   await page.getByRole('button',{name:'Nuevo',exact:true}).click();
+  await page.locator('#article-category').selectOption('matematicas');
   await page.getByLabel('Título',{exact:true}).fill('Noticia con editor visual');
   const visual = page.getByRole('textbox',{name:'Contenido de la noticia',exact:true});
   await visual.fill('Texto de la noticia'); await visual.press('ControlOrMeta+a');
@@ -226,6 +237,7 @@ test('image dialog handles invalid files, cancel and mobile cropping without cha
   await page.getByRole('button',{name:'Abrir menú',exact:true}).click();
   await signIn(page,'admin@example.test');
   await page.getByRole('button',{name:'Nuevo',exact:true}).click();
+  await page.locator('#article-category').selectOption('matematicas');
   // Close the navigation before working with the editor on a narrow screen.
   const menu = page.getByRole('button',{name:'Abrir menú',exact:true}); if (await menu.getAttribute('aria-expanded') === 'true') await menu.click();
   await page.getByRole('textbox',{name:'Contenido de la noticia',exact:true}).fill('Texto que debe conservarse');

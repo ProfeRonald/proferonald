@@ -19,6 +19,9 @@
         "categorias": {
           ".validate": "newData.isString() && newData.val().length <= 500"
         },
+        "categoria": {
+          ".validate": "newData.val() === 'matematicas' || newData.val() === 'educacion' || newData.val() === 'tecnologia' || newData.val() === 'cultura' || newData.val() === 'noticias'"
+        },
         "activo": {
           ".validate": "newData.val() === 0 || newData.val() === 1"
         },
@@ -49,6 +52,9 @@
         },
         "categorias": {
           ".validate": "newData.isString() && newData.val().length <= 500"
+        },
+        "categoria": {
+          ".validate": "newData.val() === 'matematicas' || newData.val() === 'educacion' || newData.val() === 'tecnologia' || newData.val() === 'cultura' || newData.val() === 'noticias'"
         },
         "activo": {
           ".validate": "newData.val() === 1"

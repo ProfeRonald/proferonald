@@ -4,7 +4,7 @@ import { icon } from './icons.js';
 import { observeHeader } from './navigation.js';
 import { session, observeSession, login, logout, finishRedirect } from './auth.js';
 import * as data from './data.js';
-import { escapeHTML as esc, decodePID, postURL, dateInfo, categories, matchesPost, validateComment, safeURL, youtubeID, draftImagePath } from './core.js';
+import { escapeHTML as esc, decodePID, postURL, dateInfo, editorialCategories, categoryName, postCategory, matchesPost, validateComment, safeURL, youtubeID, draftImagePath } from './core.js';
 import { site, mathliveFonts } from './config.js';
 import { contentTools, mediaHTML } from './content.js';
 import { $, status, report, busy, button, fieldError } from './ui.js';
@@ -84,39 +84,39 @@ async function catalog() {
   fullCatalog ??= data.catalog().catch(error => { fullCatalog = null; throw error; });
   return fullCatalog;
 }
-function categoryCounts(posts) {
-  const counts = new Map(); for (const post of posts) for (const category of categories(post.categorias)) counts.set(category,(counts.get(category)||0)+1);
-  return [...counts].sort(([a],[b]) => a.localeCompare(b,'es'));
-}
-async function refreshCategories() {
-  const counts = categoryCounts(await catalog());
-  $('#category-menu').innerHTML = counts.map(([name,count]) => '<a data-route aria-label="'+esc(name)+'" href="/?categoria='+encodeURIComponent(name)+'">'+esc(name)+'<span class="muted small" aria-hidden="true">'+count+'</span></a>').join('')+'<a data-route href="/#categorias">Explorar todos los temas '+icon('arrow',16)+'</a>';
-  const ribbon = $('#home-categories');
-  if (ribbon) ribbon.innerHTML = '<span>Explora por tema</span><a data-route href="/" aria-current="page">Todos</a>'+counts.slice(0,6).map(([name]) => '<a data-route href="/?categoria='+encodeURIComponent(name)+'">'+esc(name)+'</a>').join('')+(counts.length>6?'<a data-route href="/#categorias">Todos los temas '+icon('arrow',14)+'</a>':'');
-  return counts;
-}
-function renderCards(items, more = false, filtered = false) {
+const categoryNavigation = Object.entries(editorialCategories)
+  .map(([key, name]) => `<a data-route href="/?tema=${key}">${name}</a>`).join('');
+$('#category-menu').innerHTML = categoryNavigation;
+$('#article-category').insertAdjacentHTML('beforeend', Object.entries(editorialCategories)
+  .map(([key, name]) => `<option value="${key}">${name}</option>`).join(''));
+function renderCards(items, more = false, filters = {}) {
   currentPage = items;
+  const { term, category, keyword } = filters;
+  const filtered = Boolean(term || category || keyword);
   const home = !filtered && pageIndex === 0;
-  const params = new URL(location.href).searchParams, term = params.get('q') || '', category = params.get('categoria') || (location.hash.startsWith('#cat-') ? decodeURIComponent(location.hash.slice(5)) : '');
   const introduction = home ? '<section class="home-intro"><div><p class="eyebrow">El cuaderno de Ronald Jiménez</p><h1>Ideas que invitan<br>a <em>pensar.</em></h1></div><div class="intro-copy"><p>Matemáticas, educación y tecnología, desde la mirada de un docente.</p><span class="intro-annotation">Para quienes enseñan y aprenden</span></div></section><nav class="category-ribbon" id="home-categories" aria-label="Temas de las publicaciones"><span>Explora por tema</span><a data-route href="/#categorias">Ver categorías</a></nav>' : '';
   const featured = home && items.length ? featuredPost(items[0],content.text(items[0].contenido)) : '';
   const recent = home && items.length ? items.slice(1) : items;
   const headingTag = home ? 'h2' : 'h1';
-  const heading = filtered ? '<div class="page-intro"><p class="eyebrow">Una idea lleva a otra</p><h1>Resultados</h1></div><div class="results-summary"><span>'+esc(term ? 'Búsqueda: «'+term+'»' : 'Categoría: '+category)+'</span><button class="button button-quiet button-small" type="button" data-action="clear-filters">Limpiar</button></div>' : '<div class="section-heading"><div><p class="eyebrow">Para seguir aprendiendo</p><'+headingTag+' id="publications-title">Publicaciones</'+headingTag+'></div><a class="text-link" data-route href="/#categorias">Explorar temas '+icon('arrow',16)+'</a></div>';
+  const heading = filtered ? '<div class="page-intro"><p class="eyebrow">Una idea lleva a otra</p><h1>Resultados</h1></div><div class="results-summary"><span>'+esc(term ? 'Búsqueda: «'+term+'»' : category ? 'Categoría: '+(categoryName(category) || category) : 'Palabra clave: '+keyword)+'</span><button class="button button-quiet button-small" type="button" data-action="clear-filters">Limpiar</button></div>' : '<div class="section-heading"><div><p class="eyebrow">Para seguir aprendiendo</p><'+headingTag+' id="publications-title">Publicaciones</'+headingTag+'></div><a class="text-link" data-route href="/#categorias">Explorar temas '+icon('arrow',16)+'</a></div>';
   const pagination = '<nav aria-label="Paginación" class="pagination-controls"><button class="button button-outline" data-action="newer" '+(pageIndex === 0 ? 'disabled':'')+'>Más recientes</button><span>Página '+(pageIndex+1)+'</span><button class="button button-outline" data-action="older" '+(!more?'disabled':'')+'>Anteriores</button></nav>';
   $('#view').innerHTML = '<div class="site-wrap">'+introduction+featured+'<section class="'+(home?'latest-section':'listing-section')+'">'+heading+'<div class="post-grid">'+recent.map(post=>postCard(post,content.text(post.contenido))).join('')+'</div>'+(!items.length?'<p class="empty-state" role="status">No hay publicaciones que coincidan.</p>':'')+(home && items.length === 1 ? '<p class="muted">Pronto habrá más ideas para compartir.</p>':'')+pagination+'</section>'+(home?authorHTML()+secondaryHTML():'')+'</div>';
-  if (home) { refreshCategories().catch(() => {}); loadVerse(); }
+  if (home) {
+    $('#home-categories').innerHTML = '<span>Explora por tema</span><a data-route href="/" aria-current="page">Todos</a>' + categoryNavigation;
+    loadVerse();
+  }
 }
 async function listing(version) {
   const params = new URL(location.href).searchParams;
-  const term = params.get('q') || ''; const category = params.get('categoria') || (location.hash.startsWith('#cat-') ? decodeURIComponent(location.hash.slice(5)) : '');
+  const term = params.get('q') || '';
+  const category = params.get('tema') || '';
+  const keyword = params.get('palabra') || params.get('categoria') || (location.hash.startsWith('#cat-') ? decodeURIComponent(location.hash.slice(5)) : '');
   search.querySelector('#search-text').value = term;
-  if (term || category) {
+  if (term || category || keyword) {
     const all = await catalog();
     if (version !== routeVersion) return;
-    const matches = all.filter(post => matchesPost({ ...post, contenido: content.text(post.contenido) }, term, category));
-    renderCards(matches.slice(pageIndex * site.pageSize, (pageIndex + 1) * site.pageSize), matches.length > (pageIndex + 1) * site.pageSize, true);
+    const matches = all.filter(post => matchesPost({ ...post, contenido: content.text(post.contenido) }, term, { category, keyword }));
+    renderCards(matches.slice(pageIndex * site.pageSize, (pageIndex + 1) * site.pageSize), matches.length > (pageIndex + 1) * site.pageSize, { term, category, keyword });
   } else {
     const result = await data.page(cursors[pageIndex]);
     if (version !== routeVersion) return;
@@ -184,8 +184,7 @@ async function staticPage(name, version) {
   if (name === 'about') { $('#view').innerHTML = '<div class="site-wrap">'+aboutHTML()+'</div>'; return; }
   if (name === 'recursos') { $('#view').innerHTML = '<div class="site-wrap">'+resourcesHTML()+'</div>'; return; }
   if (name === 'categorias') {
-    const counts = await refreshCategories(); if (version !== routeVersion) return;
-    $('#view').innerHTML = '<div class="site-wrap"><section class="page-intro"><p class="eyebrow">Explora el cuaderno</p><h1>Un tema lleva a otro.</h1><p>Encuentra lecturas que despierten tu curiosidad.</p></section><nav class="category-directory" aria-label="Todas las categorías">'+counts.map(([name,count])=>'<a data-route href="/?categoria='+encodeURIComponent(name)+'">'+esc(name)+'<span>'+count+'</span></a>').join('')+'</nav></div>'; return;
+    $('#view').innerHTML = '<div class="site-wrap"><section class="page-intro"><p class="eyebrow">Explora el cuaderno</p><h1>Un tema lleva a otro.</h1><p>Encuentra lecturas que despierten tu curiosidad.</p></section><nav class="category-directory" aria-label="Todas las categorías">'+categoryNavigation+'</nav></div>'; return;
   }
   if (name === 'contacto') {
     $('#view').innerHTML = '<div class="static-page"><p class="eyebrow">Sigamos conversando</p><h1>Contacto</h1><div class="article-post"><p>¿Una idea, una pregunta o una experiencia para compartir? Puedes contactar conmigo en mis perfiles públicos.</p><div class="action-row"><a class="button button-primary" href="https://www.facebook.com/ProfeRonaldCom/" target="_blank" rel="noopener noreferrer">Facebook '+icon('external',18)+'</a><a class="button button-outline" href="https://www.linkedin.com/in/proferonald/" target="_blank" rel="noopener noreferrer">LinkedIn '+icon('external',18)+'</a></div></div></div>'; return;
@@ -236,6 +235,7 @@ async function editor(post = null) {
   editing = post; stopComments(); $('#view').hidden = true; $('#editor').hidden = false;
   const form = $('#article-form'); form.reset();
   for (const name of ['titulo', 'contenido', 'imagen', 'categorias']) form.elements[name].value = post?.[name] || '';
+  form.elements.categoria.value = post ? postCategory(post) : '';
   form.elements.mediaURL.value = draftImagePath(post?.imagen) ? '' : post?.imagen || '';
   $('#private-photo-note').hidden = !draftImagePath(post?.imagen);
   form.elements.activo.checked = post?.activo === 1;
@@ -265,7 +265,7 @@ document.addEventListener('click', event => {
   busy(target, async () => {
     const action = target.dataset.action;
     if (action === 'toggle-nav') { const open = $('#nav-links').classList.toggle('is-open'); target.setAttribute('aria-expanded',String(open)); return; }
-    if (action === 'toggle-categories') { const open = $('#category-menu').hidden; $('#category-menu').hidden = !open; target.setAttribute('aria-expanded',String(open)); if (open) await refreshCategories(); return; }
+    if (action === 'toggle-categories') { const open = $('#category-menu').hidden; $('#category-menu').hidden = !open; target.setAttribute('aria-expanded',String(open)); return; }
     if (action === 'open-search') { $('#search-dialog').showModal(); $('#search-text').focus(); return; }
     if (action === 'close-search') { $('#search-dialog').close(); return; }
     if (action === 'clear-filters') return navigate('/');
