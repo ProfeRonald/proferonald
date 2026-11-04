@@ -33,7 +33,7 @@ export function createImageDialog({ canEdit, onApply }) {
   function paint(updateFields = true) {
     if (!bitmap) return;
     const dimensions = size(); crop = clampCrop(crop, dimensions.width, dimensions.height);
-    const scale = Math.min(1, 900 / dimensions.width, 650 / dimensions.height);
+    const scale = Math.min(1, 480 / dimensions.width, Math.min(300, window.innerHeight * .35) / dimensions.height);
     canvas.width = Math.max(1, Math.round(dimensions.width * scale)); canvas.height = Math.max(1, Math.round(dimensions.height * scale));
     ctx.save(); ctx.scale(canvas.width / dimensions.width, canvas.height / dimensions.height); drawImage(ctx); ctx.restore();
     const sx = canvas.width / dimensions.width, sy = canvas.height / dimensions.height;
@@ -53,8 +53,7 @@ export function createImageDialog({ canEdit, onApply }) {
     if (token !== request || open !== generation || !dialog.open || !canEdit()) { next.close(); return; }
     if (!next.width || !next.height || next.width * next.height > 40_000_000) { next.close(); throw new Error('La imagen supera 40 megapíxeles.'); }
     bitmap?.close(); bitmap = next; source = url; reset();
-    if (displayWidth > 0) { requestedOutput = Math.min(1920, displayWidth, bitmap.width); showOutput(); }
-    changed = !url || Math.max(bitmap.width, bitmap.height) > 1920 || (displayWidth > 0 && displayWidth !== bitmap.width);
+    changed = !url || Math.max(bitmap.width, bitmap.height) > 1920;
     $('#image-workspace').hidden = false; $('#image-apply').disabled = false; message('Imagen lista. Ajusta el recorte o las dimensiones finales y pulsa Usar imagen.');
     if (!$('#image-alt').value && blob.name) $('#image-alt').value = blob.name.replace(/\.[^.]+$/, '').slice(0, 300);
   }
@@ -147,7 +146,7 @@ export function createImageDialog({ canEdit, onApply }) {
         const blob = await new Promise(resolve => exported.toBlob(resolve, 'image/webp', 0.88));
         if (!blob) throw new Error('No se pudo crear la imagen editada.'); file = new File([blob], 'imagen-editada.webp', { type: 'image/webp' });
       }
-      await onApply({ file, src: source, alt: $('#image-alt').value.trim(), width: output.width, target }, applyCallback);
+      await onApply({ file, src: source, alt: $('#image-alt').value.trim(), width: file ? output.width : displayWidth || output.width, target }, applyCallback);
       if (open === generation) dialog.close();
     } catch (error) { if (open === generation) fail(error); }
     finally { busy = false; dialog.querySelectorAll('button,input,select').forEach(el => { el.disabled = false; }); $('#image-apply').disabled = !bitmap && !source; }

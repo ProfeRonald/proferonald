@@ -52,18 +52,68 @@ export function createNewsEditor({ content, canEdit, onChange, status, math }) {
     },
     addNodeView() {
       return ({ node, getPos, editor }) => {
+        const wrapper = document.createElement('div'); wrapper.className = 'news-image-node'; wrapper.contentEditable = 'false';
+        const frame = document.createElement('div'); frame.className = 'news-image-frame'; wrapper.append(frame);
         const image = document.createElement('img'); image.className = 'news-editable-image'; let version = 0;
+        frame.append(image);
+        const setWidth = width => { if (width) image.width = Number(width); else image.removeAttribute('width'); };
+        const clampWidth = width => Math.round(Math.max(1, Math.min(1920, wrapper.clientWidth, Math.max(32, width))));
+        function commitWidth(width) {
+          const pos = getPos();
+          if (allowed() && typeof pos === 'number' && Number(node.attrs.width) !== width) {
+            editor.view.dispatch(editor.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, width }));
+          }
+        }
+        for (const corner of ['nw', 'ne', 'sw', 'se']) {
+          const handle = document.createElement('button'); handle.type = 'button'; handle.className = 'news-image-handle';
+          handle.dataset.corner = corner; handle.tabIndex = corner === 'se' ? 0 : -1;
+          handle.setAttribute('aria-label', 'Redimensionar imagen. Usa las flechas para ajustar el tamaño.');
+          frame.append(handle);
+          let drag;
+          handle.addEventListener('pointerdown', event => {
+            if (!allowed() || event.button !== 0 || drag || !image.naturalWidth) return;
+            event.preventDefault();
+            const bounds = image.getBoundingClientRect();
+            if (!bounds.width || !bounds.height) return;
+            drag = { id: event.pointerId, x: event.clientX, y: event.clientY, width: bounds.width, slope: bounds.height / bounds.width };
+            handle.setPointerCapture(event.pointerId);
+          });
+          handle.addEventListener('pointermove', event => {
+            if (drag?.id !== event.pointerId || !allowed()) return;
+            const dx = (event.clientX - drag.x) * (corner.endsWith('e') ? 1 : -1);
+            const dy = (event.clientY - drag.y) * (corner.startsWith('s') ? 1 : -1);
+            if (!drag.next && Math.hypot(dx, dy) < 2) return;
+            drag.next = clampWidth(drag.width + (dx + dy * drag.slope) / (1 + drag.slope ** 2));
+            setWidth(drag.next);
+          });
+          for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) handle.addEventListener(type, event => {
+            if (drag?.id !== event.pointerId) return;
+            const width = drag.next; drag = null;
+            setWidth(node.attrs.width);
+            if (type === 'pointerup' && width) commitWidth(width);
+          });
+          handle.addEventListener('keydown', event => {
+            if (!allowed() || !image.naturalWidth || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) return;
+            event.preventDefault();
+            const direction = ['ArrowRight', 'ArrowDown'].includes(event.key) ? 1 : -1;
+            commitWidth(clampWidth(image.getBoundingClientRect().width + direction * (event.shiftKey ? 1 : 10)));
+          });
+        }
         function update(current) {
           const token = ++version; image.alt = current.attrs.alt || ''; image.removeAttribute('src');
-          if (current.attrs.width) image.width = Number(current.attrs.width); else image.removeAttribute('width');
+          setWidth(current.attrs.width);
           previewURL(current.attrs.src).then(url => { if (token === version && allowed() && image.isConnected) image.src = url; }).catch(() => { if (token === version) image.alt = 'Imagen privada no disponible.'; });
         }
         update(node);
-        return { dom: image, update(next) {
+        return { dom: wrapper, stopEvent: event => Boolean(event.target.closest?.('.news-image-handle')), ignoreMutation: mutation => mutation.type !== 'selection', update(next) {
           if (next.type !== node.type) return false;
           const changed = ['src', 'alt', 'title', 'width'].some(key => next.attrs[key] !== node.attrs[key]);
-          node = next; if (changed) update(next); return true;
-        }, selectNode() { image.classList.add('ProseMirror-selectednode'); }, deselectNode() { image.classList.remove('ProseMirror-selectednode'); }, destroy() { version++; } };
+          const sourceChanged = next.attrs.src !== node.attrs.src;
+          node = next;
+          if (sourceChanged) update(next);
+          else if (changed) { image.alt = next.attrs.alt || ''; setWidth(next.attrs.width); }
+          return true;
+        }, selectNode() { wrapper.classList.add('ProseMirror-selectednode'); }, deselectNode() { wrapper.classList.remove('ProseMirror-selectednode'); }, destroy() { version++; } };
       };
     }
   });
