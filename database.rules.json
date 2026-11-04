@@ -22,6 +22,27 @@
         "categoria": {
           ".validate": "newData.val() === 'matematicas' || newData.val() === 'educacion' || newData.val() === 'tecnologia' || newData.val() === 'cultura' || newData.val() === 'noticias'"
         },
+        "categoriasEditoriales": {
+          ".validate": "newData.hasChildren()",
+          "matematicas": {
+            ".validate": "newData.val() === true"
+          },
+          "educacion": {
+            ".validate": "newData.val() === true"
+          },
+          "tecnologia": {
+            ".validate": "newData.val() === true"
+          },
+          "cultura": {
+            ".validate": "newData.val() === true"
+          },
+          "noticias": {
+            ".validate": "newData.val() === true"
+          },
+          "$other": {
+            ".validate": false
+          }
+        },
         "activo": {
           ".validate": "newData.val() === 0 || newData.val() === 1"
         },
@@ -55,6 +76,27 @@
         },
         "categoria": {
           ".validate": "newData.val() === 'matematicas' || newData.val() === 'educacion' || newData.val() === 'tecnologia' || newData.val() === 'cultura' || newData.val() === 'noticias'"
+        },
+        "categoriasEditoriales": {
+          ".validate": "newData.hasChildren()",
+          "matematicas": {
+            ".validate": "newData.val() === true"
+          },
+          "educacion": {
+            ".validate": "newData.val() === true"
+          },
+          "tecnologia": {
+            ".validate": "newData.val() === true"
+          },
+          "cultura": {
+            ".validate": "newData.val() === true"
+          },
+          "noticias": {
+            ".validate": "newData.val() === true"
+          },
+          "$other": {
+            ".validate": false
+          }
         },
         "activo": {
           ".validate": "newData.val() === 1"

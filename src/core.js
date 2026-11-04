@@ -57,23 +57,26 @@ const legacyTopics = [
   ['cultura', ['cultura', 'espanol', 'lengua', 'castellano']],
   ['educacion', ['educacion', 'docencia', 'estudiante', 'estudiantes']]
 ];
-export function postCategory(post) {
-  if (categoryName(post.categoria)) return post.categoria;
+export function postCategories(post) {
+  const selected = Object.keys(editorialCategories).filter(key => post.categoriasEditoriales?.[key] === true);
+  if (selected.length) return selected;
+  if (categoryName(post.categoria)) return [post.categoria];
   const tags = new Set(keywords(post.categorias).map(normalize));
-  return legacyTopics.find(([, aliases]) => aliases.some(alias => tags.has(alias)))?.[0] || 'noticias';
+  return [legacyTopics.find(([, aliases]) => aliases.some(alias => tags.has(alias)))?.[0] || 'noticias'];
 }
 export const draftImagePath = value => /^private:(imagenes\/[a-f0-9-]{36}\.webp)$/.exec(String(value ?? ''))?.[1] || '';
 export function matchesPost(post, term, { category = '', keyword = '' } = {}) {
-  const topic = postCategory(post);
-  return (!category || topic === category) &&
+  const topics = postCategories(post);
+  return (!category || topics.includes(category)) &&
     (!keyword || keywords(post.categorias).some(tag => normalize(tag) === normalize(keyword))) &&
-    normalize([post.titulo, post.contenido, post.categorias, categoryName(topic)].join(' ')).includes(normalize(term));
+    normalize([post.titulo, post.contenido, post.categorias, ...topics.map(categoryName)].join(' ')).includes(normalize(term));
 }
 export function validateArticle(input) {
-  const post = { titulo: String(input.titulo ?? '').trim(), contenido: String(input.contenido ?? '').trim(), categoria: input.categoria, categorias: keywords(input.categorias).join(','), imagen: String(input.imagen ?? '').trim(), activo: input.activo ? 1 : 0 };
+  const post = { titulo: String(input.titulo ?? '').trim(), contenido: String(input.contenido ?? '').trim(), categoriasEditoriales: input.categoriasEditoriales, categorias: keywords(input.categorias).join(','), imagen: String(input.imagen ?? '').trim(), activo: input.activo ? 1 : 0 };
   if (!post.titulo || post.titulo.length > 180) throw new Error('El título debe tener entre 1 y 180 caracteres.');
   if (!post.contenido || post.contenido.length > 100000) throw new Error('El contenido debe tener entre 1 y 100 000 caracteres.');
-  if (!categoryName(post.categoria)) throw new Error('Selecciona una categoría editorial.');
+  const selected = Object.entries(post.categoriasEditoriales ?? {});
+  if (!selected.length || selected.some(([key, enabled]) => !categoryName(key) || enabled !== true)) throw new Error('Selecciona al menos una categoría editorial.');
   if (post.categorias.length > 500) throw new Error('Las palabras clave no pueden superar 500 caracteres.');
   if (post.imagen && !draftImagePath(post.imagen) && !youtubeID(post.imagen) && !safeURL(post.imagen, { image: true })) throw new Error('La imagen debe usar HTTPS o ser un video de YouTube válido.');
   if (post.imagen && !draftImagePath(post.imagen)) post.imagen = youtubeID(post.imagen) ? `https://www.youtube-nocookie.com/embed/${youtubeID(post.imagen)}` : safeURL(post.imagen, { image: true });

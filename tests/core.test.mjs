@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
-import { escapeHTML, safeURL, youtubeID, encodePID, decodePID, dateInfo, matchesPost, postCategory, validateArticle, validateComment, filePolicy, publicationUpdates } from '../src/core.js';
+import { escapeHTML, safeURL, youtubeID, encodePID, decodePID, dateInfo, matchesPost, postCategories, validateArticle, validateComment, filePolicy, publicationUpdates } from '../src/core.js';
 import { contentTools } from '../src/content.js';
 import { migrationUpdates } from '../src/migration.js';
 const window = new JSDOM('').window; const tools = contentTools(window);
 const id = '-NCTb9s4nnhF0cY0sArI';
-const article = { titulo: 'Álgebra', contenido: '<p>Educación $x^2$</p>', categoria: 'matematicas', categorias: 'Matemática, Noticias', imagen: '', activo: 1, fecha: 1660000000000 };
+const article = { titulo: 'Álgebra', contenido: '<p>Educación $x^2$</p>', categoriasEditoriales: { matematicas: true, educacion: true }, categorias: 'Matemática, Noticias', imagen: '', activo: 1, fecha: 1660000000000 };
 test('legacy pid roundtrip and malformed identifiers', () => {
   assert.equal(decodePID(encodePID(id)), id);
   for (const value of ['', 'abc', '%', encodePID(id).replace(/t/, '!'), null]) assert.equal(decodePID(value), '');
@@ -41,16 +41,19 @@ test('article formulas and formatting survive sanitation', () => {
 test('date metadata handles January and invalid data', () => { assert.match(dateInfo(Date.UTC(2024, 0, 5)).iso, /^2024-01-05/); assert.equal(dateInfo('invalid').iso, ''); });
 test('editorial categories and accent insensitive keywords filter independently', () => {
   assert.equal(matchesPost(article, 'educacion', { category: 'matematicas' }), true);
+  assert.equal(matchesPost(article, '', { category: 'educacion' }), true);
+  assert.deepEqual(postCategories({ categoria: 'cultura' }), ['cultura']);
   assert.equal(matchesPost(article, 'álgebra', { keyword: 'noticias' }), true);
   assert.equal(matchesPost(article, '', { category: 'noticias' }), false);
   assert.equal(matchesPost(article, '', { keyword: 'Matem' }), false);
-  assert.equal(postCategory({ categorias: 'Ciencia,LaTex,Matemáticas,MsWord' }), 'tecnologia');
-  assert.equal(postCategory({ categorias: 'español,dominicano,lengua' }), 'cultura');
-  assert.equal(postCategory({ categorias: 'ego,matematica,estudiante' }), 'matematicas');
+  assert.deepEqual(postCategories({ categorias: 'Ciencia,LaTex,Matemáticas,MsWord' }), ['tecnologia']);
+  assert.deepEqual(postCategories({ categorias: 'español,dominicano,lengua' }), ['cultura']);
+  assert.deepEqual(postCategories({ categorias: 'ego,matematica,estudiante' }), ['matematicas']);
 });
 test('article and comment validation rejects invalid lengths and URLs', () => {
   assert.equal(validateArticle(article).categorias, 'Matemática,Noticias');
-  assert.throws(() => validateArticle({ ...article, categoria: 'etiqueta-libre' }), /categoría editorial/);
+  assert.throws(() => validateArticle({ ...article, categoriasEditoriales: { 'etiqueta-libre': true } }), /categoría editorial/);
+  assert.throws(() => validateArticle({ ...article, categoriasEditoriales: {} }), /categoría editorial/);
   assert.throws(() => validateArticle({ ...article, titulo: '' })); assert.throws(() => validateArticle({ ...article, imagen: 'javascript:evil()' }));
   assert.throws(() => validateComment('abc')); assert.throws(() => validateComment('x'.repeat(601))); assert.equal(validateComment(' comentario '), 'comentario');
   assert.equal(validateArticle({ ...article, activo: 0, imagen: 'private:imagenes/12345678-1234-1234-1234-123456789abc.webp' }).imagen, 'private:imagenes/12345678-1234-1234-1234-123456789abc.webp');

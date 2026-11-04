@@ -24,6 +24,8 @@ test('only administrator can atomically publish, withdraw and delete articles', 
   await assertFails(user().database().ref().update(publicationUpdates(id, post)));
   await assertFails(admin().database().ref().update(publicationUpdates(id, { ...post, categoria: 'etiqueta-libre' })));
   await assertSucceeds(admin().database().ref().update(publicationUpdates(id, { ...post, categoria: 'cultura', categorias: 'lengua,Caribe' })));
+  await assertSucceeds(admin().database().ref().update(publicationUpdates(id, { ...post, categoriasEditoriales: { cultura: true, educacion: true } })));
+  await assertFails(admin().database().ref().update(publicationUpdates(id, { ...post, categoriasEditoriales: { cultura: true, inventada: true } })));
   await assertSucceeds(admin().database().ref().update(publicationUpdates(id, { ...post, activo: 0 })));
   await assertFails(admin().database().ref(`publicaciones/${id}`).set({ ...post, activo: 0 }));
   await assertSucceeds(admin().database().ref().update(publicationUpdates(id, null)));

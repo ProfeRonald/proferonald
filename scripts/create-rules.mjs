@@ -8,6 +8,11 @@ const fields = {
   imagen: { '.validate': "newData.isString() && newData.val().length <= 2048 && (newData.val() === '' || newData.val().beginsWith('https://') || (auth != null && auth.token.aud === 'demo-proferonald' && newData.val().beginsWith('http://127.0.0.1:9199/')))" },
   categorias: { '.validate': 'newData.isString() && newData.val().length <= 500' },
   categoria: { '.validate': Object.keys(editorialCategories).map(key => `newData.val() === '${key}'`).join(' || ') },
+  categoriasEditoriales: {
+    '.validate': 'newData.hasChildren()',
+    ...Object.fromEntries(Object.keys(editorialCategories).map(key => [key, { '.validate': 'newData.val() === true' }])),
+    '$other': { '.validate': false }
+  },
   activo: { '.validate': 'newData.val() === 0 || newData.val() === 1' },
   fecha: { '.validate': 'newData.isNumber() && newData.val() > 0 && newData.val() <= now' },
   actualizado: { '.validate': 'newData.isNumber() && newData.val() <= now' },

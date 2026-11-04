@@ -4,7 +4,7 @@ import { icon } from './icons.js';
 import { observeHeader } from './navigation.js';
 import { session, observeSession, login, logout, finishRedirect } from './auth.js';
 import * as data from './data.js';
-import { escapeHTML as esc, decodePID, postURL, dateInfo, editorialCategories, categoryName, postCategory, matchesPost, validateComment, safeURL, youtubeID, draftImagePath } from './core.js';
+import { escapeHTML as esc, decodePID, postURL, dateInfo, editorialCategories, categoryName, postCategories, matchesPost, validateComment, safeURL, youtubeID, draftImagePath } from './core.js';
 import { site, mathliveFonts } from './config.js';
 import { contentTools, mediaHTML } from './content.js';
 import { $, status, report, busy, button, fieldError } from './ui.js';
@@ -87,8 +87,8 @@ async function catalog() {
 const categoryNavigation = Object.entries(editorialCategories)
   .map(([key, name]) => `<a data-route href="/?tema=${key}">${name}</a>`).join('');
 $('#category-menu').innerHTML = categoryNavigation;
-$('#article-category').insertAdjacentHTML('beforeend', Object.entries(editorialCategories)
-  .map(([key, name]) => `<option value="${key}">${name}</option>`).join(''));
+$('#article-categories').innerHTML = Object.entries(editorialCategories)
+  .map(([key, name]) => `<label><input type="checkbox" name="tema" value="${key}"> ${name}</label>`).join('');
 function renderCards(items, more = false, filters = {}) {
   currentPage = items;
   const { term, category, keyword } = filters;
@@ -235,7 +235,8 @@ async function editor(post = null) {
   editing = post; stopComments(); $('#view').hidden = true; $('#editor').hidden = false;
   const form = $('#article-form'); form.reset();
   for (const name of ['titulo', 'contenido', 'imagen', 'categorias']) form.elements[name].value = post?.[name] || '';
-  form.elements.categoria.value = post ? postCategory(post) : '';
+  const selected = post ? postCategories(post) : [];
+  for (const checkbox of form.querySelectorAll('[name=tema]')) checkbox.checked = selected.includes(checkbox.value);
   form.elements.mediaURL.value = draftImagePath(post?.imagen) ? '' : post?.imagen || '';
   $('#private-photo-note').hidden = !draftImagePath(post?.imagen);
   form.elements.activo.checked = post?.activo === 1;
@@ -297,7 +298,9 @@ $('#article-form').addEventListener('submit', event => {
   busy($('#save-article'), async () => {
     if (!session.admin) throw new Error('Permiso requerido');
     if (!newsEditor || newsEditor.busy) throw fieldError(new Error('Termina de preparar la imagen antes de guardar la noticia.'));
-    const form = event.target; const raw = Object.fromEntries(new FormData(form));
+    const form = event.target; const fields = new FormData(form);
+    const raw = Object.fromEntries(fields);
+    raw.categoriasEditoriales = Object.fromEntries(fields.getAll('tema').map(key => [key, true]));
     raw.contenido = newsEditor.getHTML();
     raw.activo = form.elements.activo.checked;
     // Keep the submitted payload visible until the single atomic update succeeds.

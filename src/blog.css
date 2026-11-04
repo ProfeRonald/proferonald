@@ -16,6 +16,11 @@
 .featured-copy > .eyebrow { margin-bottom:30px; }
 .category-tags { display:flex; flex-wrap:wrap; gap:10px; list-style:none; padding:0; margin:0 0 12px; }
 .category-tags a { font-size:.64rem; font-weight:600; text-transform:uppercase; letter-spacing:.11em; color:var(--accent); }
+.article-categories { min-width:0; border:0; padding:0; }
+.article-categories legend { font-weight:600; }
+.article-categories p { margin:.25rem 0; }
+#article-categories { display:flex; flex-wrap:wrap; gap:.25rem 1rem; }
+#article-categories label { display:flex; align-items:center; gap:.4rem; min-height:44px; }
 .article-keywords { margin:2rem 0; font-size:.875rem; }
 .article-keywords p { margin:0 0 .5rem; font-weight:600; }
 .article-keywords ul { display:flex; flex-wrap:wrap; gap:.5rem; list-style:none; padding:0; margin:0; }

@@ -89,18 +89,21 @@ test('mobile navigation, keyboard focus and no eager YouTube requests', async ({
 test('administrator creates, edits and withdraws a post; failed save preserves text', async ({ page }) => {
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
   await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
-  await page.locator('#article-category').selectOption('matematicas');
+  await page.locator('#article-categories input[value=matematicas]').check();
   await page.getByLabel('Título', { exact: true }).fill('Publicación de prueba');
   await sourceHTML(page, '<p>Contenido seguro $x=1$</p><script>evil()</script>');
+  await page.locator('#article-categories input[value=educacion]').check();
   await page.locator('#article-keywords').fill('Ecuaciones, Prueba');
   await page.getByLabel('Publicar (desmarcado guarda un borrador privado)').check();
   await page.getByRole('button', { name: 'Guardar', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Publicación de prueba', exact: true })).toBeVisible();
   await expect(page.locator('#article-body script')).toHaveCount(0);
+  await expect(page.locator('.article-heading .category-tags a')).toHaveCount(2);
   await expect(page.getByRole('navigation', { name: 'Palabras clave' }).getByRole('link', { name: 'Ecuaciones' })).toHaveAttribute('href', '/?palabra=Ecuaciones');
   await expect(page.locator('math-field')).toHaveCount(1);
   await expect.poll(() => page.evaluate(() => document.fonts.check('16px KaTeX_Main'))).toBe(true);
   await page.getByRole('button', { name: 'Editar', exact: true }).click();
+  await expect(page.locator('#article-categories input[value=educacion]')).toBeChecked();
   await sourceHTML(page, '<script>evil()</script>');
   await page.getByRole('button', { name: 'Guardar', exact: true }).click();
   await expect(page.getByText('El contenido no puede estar vacío.')).toBeVisible();
@@ -153,7 +156,7 @@ test('manager grants admin access only and handles a private document upload', a
 test('new draft images stay private until the article is published', async ({ page }) => {
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
   await page.getByRole('button', { name: 'Nuevo', exact: true }).click();
-  await page.locator('#article-category').selectOption('matematicas');
+  await page.locator('#article-categories input[value=matematicas]').check();
   await page.getByLabel('Título', { exact: true }).fill('Borrador con imagen privada');
   await sourceHTML(page, 'Contenido reservado hasta publicar.');
   await page.getByRole('button',{name:'Elegir imagen de portada',exact:true}).click();
@@ -178,7 +181,7 @@ test('visual editor crops a private inline image, reopens it and publishes the a
   await page.setViewportSize({width:1440,height:1050});
   await page.goto('/?emulators=1'); await signIn(page, 'admin@example.test');
   await page.getByRole('button',{name:'Nuevo',exact:true}).click();
-  await page.locator('#article-category').selectOption('matematicas');
+  await page.locator('#article-categories input[value=matematicas]').check();
   await page.getByLabel('Título',{exact:true}).fill('Noticia con editor visual');
   const visual = page.getByRole('textbox',{name:'Contenido de la noticia',exact:true});
   await visual.fill('Texto de la noticia'); await visual.press('ControlOrMeta+a');
@@ -237,7 +240,7 @@ test('image dialog handles invalid files, cancel and mobile cropping without cha
   await page.getByRole('button',{name:'Abrir menú',exact:true}).click();
   await signIn(page,'admin@example.test');
   await page.getByRole('button',{name:'Nuevo',exact:true}).click();
-  await page.locator('#article-category').selectOption('matematicas');
+  await page.locator('#article-categories input[value=matematicas]').check();
   // Close the navigation before working with the editor on a narrow screen.
   const menu = page.getByRole('button',{name:'Abrir menú',exact:true}); if (await menu.getAttribute('aria-expanded') === 'true') await menu.click();
   await page.getByRole('textbox',{name:'Contenido de la noticia',exact:true}).fill('Texto que debe conservarse');
