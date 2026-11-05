@@ -188,6 +188,11 @@ async function staticPage(name, version) {
   }
   const response = await fetch('/assets/htmls/'+(name === 'politica'?'privacidad-v2':name)+'.html'); if (!response.ok) throw new Error('Contenido no disponible');
   const html = await response.text(); if (version !== routeVersion) return;
+  if (name === 'terminos') {
+    $('#view').innerHTML = '<article class="static-page terms-page"><header class="page-intro"><p class="eyebrow">El cuaderno de ProfeRonald</p><h1>Términos de uso</h1><p>Condiciones para leer, participar y compartir los recursos del blog.</p></header><div class="article-post">'+content.sanitize(html)+'</div></article>';
+    document.title = 'Términos de uso - ' + site.name;
+    return;
+  }
   const parsed = new DOMParser().parseFromString(html,'text/html'); const body = parsed.querySelector('.modal-body') || parsed.body;
   $('#view').innerHTML = '<div class="static-page article-post">'+(!body.querySelector('h1') ? '<h1>Términos de uso</h1>' : '')+content.sanitize(body.innerHTML)+'</div>'; mathIfNeeded($('#view'));
 }

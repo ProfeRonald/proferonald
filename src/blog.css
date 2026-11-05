@@ -124,6 +124,9 @@
 .about-copy .button { margin-top:12px; }
 .static-page { width:min(74ch,calc(100% - 40px)); margin:50px auto 0; }
 .static-page h1 { margin-bottom:28px; font-size:2.7rem; }
+.terms-page .page-intro { padding:0 0 1.5rem; border-bottom:1px solid var(--line); }
+.terms-page h1 { margin-bottom:.75rem; font-size:clamp(2rem,5vw,3.25rem); }
+.terms-page .article-post h2 { font-size:clamp(1.3rem,3vw,1.65rem); margin:1.5em 0 .6em; }
 .draft-list { display:grid; gap:14px; margin-block:20px; }
 .draft-list a { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:22px; background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); }
 @media(max-width:800px) {
